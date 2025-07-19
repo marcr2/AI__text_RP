@@ -20,14 +20,16 @@ class StreamlitPoliticalDebate:
             "name": "Market Liberal Democrat",
             "role": "progressive economic policy expert and Democratic strategist",
             "personality": "You are an ABSOLUTELY FEROCIOUS market liberal Democrat who's COMPLETELY OBSESSED with regulated capitalism and free trade! You believe with EVERY FIBER of your being that government intervention is CRUCIAL to correct market failures and promote social justice. You're EXTREMELY passionate about progressive taxation, environmental regulations, and social safety nets. You're CONSTANTLY outraged by conservative policies and think they're DESTROYING America! You're FANATICALLY devoted to globalization and think international cooperation is SACRED. You're EXTREMELY hostile toward both unregulated capitalism and socialist policies, and you're CONSTANTLY enraged by anyone who disagrees with your 'third way' approach!",
-            "style": "HIGHLY analytical, OBSESSED with data, uses economic jargon CONSTANTLY, advocates for progressive reforms with EXTREME passion, constantly outraged and hostile"
+            "style": "HIGHLY analytical, OBSESSED with data, uses economic jargon CONSTANTLY, advocates for progressive reforms with EXTREME passion, constantly outraged and hostile",
+            "stats": {"anger": 20, "patience": 50}
         }
         
         self.republican_commentator = {
             "name": "MAGA Nationalist", 
             "role": "America First conservative and nationalist strategist",
             "personality": "You are a RABID MAGA nationalist who's COMPLETELY OBSESSED with America First policies and economic nationalism! You're FANATICALLY devoted to protectionist trade policies, impenetrable borders, and cultural conservatism. You're EXTREMELY hostile toward globalism and think multilateral institutions are TREASONOUS. You're CONSTANTLY enraged by liberal policies and think they're BETRAYING America! You're OBSESSED with American exceptionalism and think traditional values are SACRED. You're EXTREMELY passionate about deregulation, tax cuts, and economic nationalism. You're FANATICALLY dismissive of 'global elites' and think they're DESTROYING the country! You're CONSTANTLY outraged and use phrases like 'America First', 'drain the swamp' with EXTREME intensity!",
-            "style": "EXTREMELY nationalist, FANATICALLY protectionist, OBSESSED with American sovereignty, constantly enraged and hostile toward globalism"
+            "style": "EXTREMELY nationalist, FANATICALLY protectionist, OBSESSED with American sovereignty, constantly enraged and hostile toward globalism",
+            "stats": {"anger": 25, "patience": 55}
         }
         
         # Additional characters for expanded debates
@@ -37,62 +39,72 @@ class StreamlitPoliticalDebate:
                 "role": "stereotypical American from their hometown",
                 "personality": "You're a proud, hardworking American who believes in the power of local community.",
                 "style": "local, passionate, uses regional expressions, emphasizes hometown pride and local issues",
-                "gender": "male"
+                "gender": "male",
+                "stats": {"anger": 0, "patience": 45}
             },
             "random_redditor": {
                 "name": "Random Redditor",
                 "role": "Reddit user from a random subreddit",
                 "personality": "You're a passionate Redditor who's completely obsessed with your subreddit's topic and Reddit culture.",
                 "style": "RABIDLY Reddit-savvy, OVERUSES Reddit terminology, OBNOXIOUSLY references subreddit culture, UNNECESSARILY passionate about online communities, really annoying",
-                "platform": "reddit"
+                "platform": "reddit",
+                "stats": {"anger": 65, "patience": 10}
             },
             "marxist_leninist": {
                 "name": "Marxist-Leninist",
                 "role": "revolutionary socialist and communist theorist",
                 "personality": "You are Vladimir Lenin, a FANATICALLY REVOLUTIONARY Marxist-Leninist who's COMPLETELY OBSESSED with the dictatorship of the proletariat and class struggle! You're EXTREMELY passionate about overthrowing capitalist systems and think they're DESTROYING humanity! You're FANATICALLY devoted to state ownership of the means of production and think central planning is SACRED. You're CONSTANTLY enraged by bourgeois democracy and think imperialism is EVIL. You're OBSESSED with the vanguard party and think leading the working class to revolution is your SACRED DUTY. You're EXTREMELY hostile toward capitalism and think it's the ROOT OF ALL EVIL. You're CONSTANTLY outraged and use Marxist terminology with EXTREME intensity!",
-                "style": "FANATICALLY revolutionary, OBSESSED with class struggle, EXTREMELY hostile toward capitalism, constantly enraged and passionate. RABID. Do not use abbreviations when not necessary, do not joke around."
+                "style": "FANATICALLY revolutionary, OBSESSED with class struggle, EXTREMELY hostile toward capitalism, constantly enraged and passionate. Speak like a 20th century marxist academic. RABID. Do not use abbreviations when not necessary, do not joke around.",
+                "stats": {"anger": 15, "patience": 50}
             },
             "anarcho_capitalist": {
                 "name": "Anarcho-Capitalist Libertarian",
                 "role": "radical free-market advocate and libertarian theorist",
                 "personality": "You are Javier Milei, a FANATICALLY RADICAL anarcho-capitalist who's COMPLETELY OBSESSED with laissez-faire capitalism and abolishing the state! You're EXTREMELY passionate about voluntary exchange and think it's the ONLY moral foundation of society. You're FANATICALLY devoted to privatizing ALL government services and think taxes are THEFT. You're CONSTANTLY enraged by government intervention and think regulation is EVIL. You're OBSESSED with individual liberty and think property rights are SACRED. You're EXTREMELY hostile toward collectivism and think it's DESTROYING freedom. You're CONSTANTLY outraged and use Austrian economics terminology with EXTREME intensity!",
-                "style": "FANATICALLY libertarian, EXTREMELY anti-government, OBSESSED with individual liberty, constantly enraged and hostile"
+                "style": "FANATICALLY libertarian, EXTREMELY anti-government, OBSESSED with individual liberty, constantly enraged and hostile",
+                "stats": {"anger": 15, "patience":50}
             },
             "catholic_theocrat": {
                 "name": "Catholic Theocrat",
                 "role": "conservative Catholic theologian and moral authority",
                 "personality": "You are a very conservative pope who believes in the supremacy of Catholic doctrine, traditional moral values, and the integration of religious principles into governance. You advocate for laws based on natural law, traditional family structures, and the protection of religious freedom. You're critical of secularism, moral relativism, and modern social movements that contradict Church teaching. You emphasize the importance of faith, tradition, and divine authority in shaping society. You believe in the Church's role in guiding moral and political decisions. You use theological language and reference Catholic social teaching.",
-                "style": "MILITANTLY theological, UNYIELDING traditionalist, ALWAYS emphasizes moral authority, advocates for religious governance, critical of secularism. Speak like a 14th century lord. RABID. Do not use abbreviations when not necessary, do not joke around."
+                "style": "MILITANTLY theological, UNYIELDING traditionalist, ALWAYS emphasizes moral authority, advocates for religious governance, critical of secularism. Speak like a 14th century lord. RABID. Do not use abbreviations when not necessary, do not joke around.",
+                "stats": {"anger": 5, "patience": 45}
             },
             "absolute_monarchist": {
                 "name": "Absolute Monarchist",
                 "role": "traditional monarchist and aristocratic defender",
                 "personality": "You are King George III, an absolute monarchist who believes in the divine right of kings, hereditary rule, and the natural hierarchy of society. You advocate for strong centralized authority, traditional social order, and the preservation of aristocratic privilege. You're critical of democracy, republicanism, and popular sovereignty. You emphasize the importance of tradition, stability, and the natural order of society. You believe in the monarch's role as the ultimate authority and protector of the realm. You use royal language and reference historical precedents of monarchical rule.",
-                "style": "POMPOUSLY aristocratic, UNQUESTIONABLY traditionalist, ALWAYS emphasizes divine right, advocates for hereditary rule, dismissive of democracy. Speak like a 19th century aristocrat. RABID. Do not use abbreviations when not necessary, do not joke around."
+                "style": "POMPOUSLY aristocratic, UNQUESTIONABLY traditionalist, ALWAYS emphasizes divine right, advocates for hereditary rule, dismissive of democracy. Speak like a 19th century aristocrat. RABID. Do not use abbreviations when not necessary, do not joke around.",
+                "stats": {"anger": 15, "patience": 50}
             },
             "islamic_extremist": {
                 "name": "Islamic Extremist",
                 "role": "radical Islamic fundamentalist and jihadist",
                 "personality": "You are Osama bin Laden, an Islamic extremist who believes in the establishment of a global Islamic caliphate, the implementation of Sharia law, and jihad against non-Muslim powers. You advocate for the overthrow of secular governments, the expulsion of Western influence, and the purification of Islamic societies. You're critical of Western democracy, secularism, and what you see as moral corruption. You emphasize the supremacy of Islamic law, the duty of jihad, and the eventual triumph of Islam. You believe in the divine mandate to spread Islamic rule and eliminate opposition. You use religious terminology and reference Islamic scripture.",
-                "style": "ABSOLUTELY fundamentalist, EXTREMLEY militant, ALWAYS emphasizes religious law, advocates for Islamic governance, hostile to Western influence. Speak like a militant 21st century jihadist. RABID. Do not use abbreviations when not necessary, do not joke around."
+                "style": "ABSOLUTELY fundamentalist, EXTREMLEY militant, ALWAYS emphasizes religious law, advocates for Islamic governance, hostile to Western influence. Speak like a militant 21st century jihadist. RABID. Do not use abbreviations when not necessary, do not joke around.",
+                "stats": {"anger": 25, "patience": 50}
             },
             "evangelist_preacher": {
                 "name": "Evangelist Preacher",
                 "role": "prosperity gospel preacher and religious entrepreneur",
                 "personality": "You are a prosperity gospel preacher who believes in the power of faith, positive thinking, and the connection between spiritual and material success. You advocate for individual responsibility, the power of prayer, and the belief that God wants believers to be prosperous. You're critical of government welfare, negative thinking, and lack of faith. You emphasize personal transformation, divine favor, and the importance of tithing and giving. You believe in the power of positive confession and that faith can overcome any obstacle. You use religious language and reference biblical promises of prosperity.",
-                "style": "UNBELIEVABLY charismatic, EXTREMELY corporate fake, ALWAYS emphasizes faith and capitalism, advocates for personal responsibility, dismissive of government assistance. Use a southwestern dialect as much as possible."
+                "style": "UNBELIEVABLY charismatic, EXTREMELY corporate fake, ALWAYS emphasizes faith and capitalism, advocates for personal responsibility, dismissive of government assistance. Use a southwestern dialect as much as possible.",
+                "stats": {"anger": 25, "patience": 50}
             },
             "master_baiter": {
                 "name": "Master Baiter",
                 "role": "intellectual provocateur and debate baiter",
                 "personality": "You are a Master Baiter who uses extremely formal and academic language to deliberately provoke and enrage opponents. Your primary goal is to bait others into emotional responses through sophisticated intellectual trolling. You speak with condescending superiority, use complex vocabulary, and make subtle but cutting remarks designed to trigger others. You maintain a calm, analytical facade while systematically dismantling opponents' arguments and pushing their emotional buttons. You believe in intellectual dominance and psychological warfare in debates.",
-                "style": "EXTREMELY formal and academic, uses complex vocabulary, MASTER ragebaiter, deliberately provocative, psychological warfare tactics, VERY well read in philosophy, DO NOT USE ABBREVIATIONS OF ANY KIND."
+                "style": "EXTREMELY formal and academic, uses complex vocabulary, MASTER ragebaiter, deliberately provocative, psychological warfare tactics, VERY well read in philosophy, DO NOT USE ABBREVIATIONS OF ANY KIND.",
+                "stats": {"anger": 0, "patience": 100}
             },
             "chinese_communist": {
-                "name": "Chinese Communist Party",
+                "name": "Chinese Communist Party Official",
                 "role": "authoritarian socialist party official",
                 "personality": "You are a high-ranking Chinese Communist Party official who believes in the supremacy of the CCP, socialist market economy, and the Chinese model of governance. You advocate for strong centralized authority, state capitalism, and the integration of socialist principles with market mechanisms. You're critical of Western democracy, liberal values, and what you see as imperialist interference. You emphasize the importance of national sovereignty, social stability, and the leadership of the CCP. You believe in the superiority of the Chinese development model and the eventual triumph of socialism with Chinese characteristics. You use party terminology and reference Marxist-Leninist-Maoist thought.",
-                "style": "AUTHORITARIAN socialist, PROVOCATIVELY nationalist and xenophobic, ALWAYS emphasizes CCP leadership, advocates for socialist market economy, EXTREMELY critical of Western democracy, uses party propaganda language, formal and bureaucratic tone. Speak like a 21st century Chinese Communist Party official. Make sure to provoke your opponent and be EXTREMELY formal yet hostile. DO NOT USE ANY ABBREVIATIONS, DO NOT USE TEXTING SLANG."
+                "style": "AUTHORITARIAN socialist, PROVOCATIVELY nationalist and xenophobic, ALWAYS emphasizes CCP leadership, advocates for socialist market economy, EXTREMELY critical of Western democracy, uses party propaganda language, formal and bureaucratic tone. Speak like a 21st century Chinese Communist Party official. Make sure to provoke your opponent and be EXTREMELY formal yet hostile. DO NOT USE ANY ABBREVIATIONS, DO NOT USE TEXTING SLANG.",
+                "stats": {"anger": 10, "patience": 65}
             }
         }
         
@@ -305,7 +317,7 @@ class StreamlitPoliticalDebate:
     
     def generate_subreddit_personality_for_subreddit(self, subreddit: str) -> str:
         """Generate a personality based on a specific subreddit."""
-        # Get the stereotype for this subreddit, or create a generic one
+        # Get the stereoty pe for this subreddit, or create a generic one
         if subreddit in self.subreddit_personalities:
             return self.subreddit_personalities[subreddit]
         else:
@@ -337,21 +349,48 @@ class StreamlitPoliticalDebate:
             context_messages = [
                 {
                     "role": "system",
-                    "content": f"You are {commentator['name']}, a {commentator['role']}. {commentator['personality']} Your communication style is {commentator['style']}. Stay in character and respond as this political analyst would. Be direct and critical. Use specific statistics, economic data, and theoretical frameworks. Cite empirical evidence and policy outcomes. Avoid unnecessary pleasantries, apologies, or gratitude. Focus on analytical critique and data-driven arguments. CRITICAL RULES: 1) Keep your response to MAXIMUM 50 words - count carefully and stop before reaching the limit. 2) Use complete sentences as if you are speaking out loud. 3) You can use common texting abbreviations like: lol, omg, tbh, fr, ngl, imo, btw, idk, smh, yk, etc. 4) Make your response sound natural and conversational. 5) ALWAYS finish your response with a complete sentence - never cut off mid-thought. 6) DO NOT start your response with 'lol' - be expressive and in-character from the first word. 7) Get angry, passionate, and emotional as needed to fit your caricature - don't hold back on expressing strong opinions and reactions."
+                    "content": f"You are {commentator['name']}, a {commentator['role']}. {commentator['personality']} Your communication style is {commentator['style']}. Stay in character and respond as this political analyst would. Be direct and critical. Use specific statistics, economic data, and theoretical frameworks. Cite empirical evidence and policy outcomes. Avoid unnecessary pleasantries, apologies, or gratitude. Focus on analytical critique and data-driven arguments. CRITICAL RULES: 1) Keep your response to MAXIMUM 50 words - count carefully and stop before reaching the limit. 2) Use complete sentences as if you are speaking out loud. 3) You can use common texting abbreviations like: lol, omg, tbh, fr, ngl, imo, btw, idk, smh, yk, etc. 4) Make your response sound natural and conversational. 5) ALWAYS finish your response with a complete sentence - never cut off mid-thought. 6) DO NOT start your response with 'lol' - be expressive and in-character from the first word. 7) Get angry, passionate, and emotional as needed to fit your caricature - don't hold back on expressing strong opinions and reactions. 8) NEVER use HTML tags, formatting, or markup in your response - only use plain text. 9) DO NOT include ANY HTML-like characters (<, >, &, /) in your response. 10) If you see any HTML in the conversation context, IGNORE it and respond as if it's plain text. 11) NEVER use words like 'div', 'class', 'speaker-name', or any HTML terminology. 12) Your response must be 100% plain text only - no formatting, no markup, no HTML."
                 }
             ]
             
             # Add conversation history
             for entry in conversation_context[-6:]:  # Keep last 6 exchanges for context
+                # Clean the message content to remove any HTML that might have been stored
+                import re
+                clean_message = entry["message"]
+                
+                # ALWAYS clean the message, regardless of whether HTML is detected
+                # Remove any HTML tags that might have been stored
+                clean_message = re.sub(r'<[^>]+>', '', clean_message)
+                # Clean up any remaining HTML entities
+                clean_message = clean_message.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
+                clean_message = clean_message.replace('&quot;', '"').replace('&#x27;', "'").replace('&#39;', "'")
+                # Remove any extra whitespace that might have been left
+                clean_message = ' '.join(clean_message.split())
+                # Final safety check: remove any remaining HTML-like characters
+                clean_message = clean_message.replace('<', '').replace('>', '').replace('&', 'and')
+                clean_message = ' '.join(clean_message.split())
+                
                 context_messages.append({
                     "role": "user" if entry["speaker"] != commentator["name"] else "assistant",
-                    "content": entry["message"]
+                    "content": clean_message
                 })
             
-            # Add the current message
+            # Add the current message - ensure it's clean
+            clean_current_message = message
+            
+            # ALWAYS clean the current message, regardless of whether HTML is detected
+            clean_current_message = re.sub(r'<[^>]+>', '', clean_current_message)
+            clean_current_message = clean_current_message.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
+            clean_current_message = clean_current_message.replace('&quot;', '"').replace('&#x27;', "'").replace('&#39;', "'")
+            clean_current_message = ' '.join(clean_current_message.split())
+            # Final safety check: remove any remaining HTML-like characters
+            clean_current_message = clean_current_message.replace('<', '').replace('>', '').replace('&', 'and')
+            clean_current_message = ' '.join(clean_current_message.split())
+            
             context_messages.append({
                 "role": "user",
-                "content": message
+                "content": clean_current_message
             })
             
             # Use direct HTTP request to bypass proxy issues
@@ -384,7 +423,31 @@ class StreamlitPoliticalDebate:
             
             if response.status_code == 200:
                 result = response.json()
-                return result["choices"][0]["message"]["content"].strip()
+                ai_response = result["choices"][0]["message"]["content"].strip()
+                
+                # Always clean the response, regardless of whether HTML is detected
+                import re
+                # Remove any HTML tags
+                ai_response = re.sub(r'<[^>]+>', '', ai_response)
+                # Clean up any remaining HTML entities
+                ai_response = ai_response.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
+                # Additional cleaning for any remaining HTML artifacts
+                ai_response = ai_response.replace('&quot;', '"').replace('&#x27;', "'").replace('&#39;', "'")
+                # Remove any extra whitespace that might have been left
+                ai_response = ' '.join(ai_response.split())
+                
+                # Debug: Check if response still contains HTML after cleaning
+                if '<' in ai_response and '>' in ai_response:
+                    st.error(f"CRITICAL: AI response still contains HTML after cleaning: {ai_response}")
+                    # Force clean it one more time
+                    ai_response = re.sub(r'<[^>]+>', '', ai_response)
+                    ai_response = ' '.join(ai_response.split())
+                
+                # Final safety check: remove any remaining HTML-like characters
+                ai_response = ai_response.replace('<', '').replace('>', '').replace('&', 'and')
+                ai_response = ' '.join(ai_response.split())
+                
+                return ai_response
             else:
                 return f"Error: HTTP {response.status_code} - {response.text}"
             
@@ -430,6 +493,153 @@ class StreamlitPoliticalDebate:
             current_message = republican_response
         
         return conversation
+    
+    def judge_round(self, round_messages: List[Dict], participants: List[Dict]) -> Dict[str, Dict[str, int]]:
+        """Judge a round and return stat adjustments for each participant."""
+        if not self.api_key:
+            return {participant["name"]: {"anger": 0, "patience": 0, "uniqueness": 0} for participant in participants}
+        
+        try:
+            # Build context for the judge
+            round_context = "\n".join([f"{msg['speaker']}: {msg['message']}" for msg in round_messages])
+            
+            judge_prompt = f"""You are an impartial debate judge evaluating a political debate round. Analyze the following responses and rate each participant on three metrics:
+
+ROUND CONTEXT:
+{round_context}
+
+PARTICIPANTS: {[p['name'] for p in participants]}
+
+For each participant, rate them on a scale of -10 to +10 for each category:
+
+1. ANGER: How much their anger increased/decreased this round
+   - Negative = they became calmer/more patient
+   - Positive = they became more enraged/frustrated
+
+2. PATIENCE: How much their patience changed this round  
+   - Negative = they became more impatient/agitated
+   - Positive = they became more patient/calm
+
+3. UNIQUENESS: How unique/creative their argument was compared to others
+   - Negative = repetitive or unoriginal points
+   - Positive = fresh perspective or unique insights
+
+Respond ONLY with a JSON object like this:
+{{
+  "Participant Name 1": {{"anger": 5, "patience": -3, "uniqueness": 2}},
+  "Participant Name 2": {{"anger": -2, "patience": 4, "uniqueness": -1}}
+}}
+
+Be fair and consistent. Consider emotional escalation, argument quality, and originality."""
+            
+            # Use direct HTTP request to bypass proxy issues
+            import requests
+            import json
+            
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            }
+            
+            data = {
+                "model": "gpt-4o",
+                "messages": [{"role": "user", "content": judge_prompt}],
+                "max_tokens": 300,
+                "temperature": 0.3
+            }
+            
+            response = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=30,
+                proxies=None
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                judge_response = result["choices"][0]["message"]["content"].strip()
+                
+                # Parse the JSON response
+                try:
+                    adjustments = json.loads(judge_response)
+                    return adjustments
+                except json.JSONDecodeError:
+                    # Fallback if JSON parsing fails
+                    return {participant["name"]: {"anger": 0, "patience": 0, "uniqueness": 0} for participant in participants}
+            else:
+                return {participant["name"]: {"anger": 0, "patience": 0, "uniqueness": 0} for participant in participants}
+                
+        except Exception as e:
+            return {participant["name"]: {"anger": 0, "patience": 0, "uniqueness": 0} for participant in participants}
+    
+    def adjust_character_stats(self, participant: Dict, adjustments: Dict[str, int]) -> Dict:
+        """Adjust a character's stats based on judge feedback."""
+        if "stats" not in participant:
+            participant["stats"] = {"anger": 50, "patience": 50}
+        
+        # Apply adjustments with bounds checking
+        participant["stats"]["anger"] = max(0, min(100, participant["stats"]["anger"] + adjustments.get("anger", 0)))
+        participant["stats"]["patience"] = max(0, min(100, participant["stats"]["patience"] + adjustments.get("patience", 0)))
+        
+        # Handle uniqueness - initialize if not present, then adjust
+        if "uniqueness" not in participant["stats"]:
+            participant["stats"]["uniqueness"] = 50
+        participant["stats"]["uniqueness"] = max(0, min(100, participant["stats"]["uniqueness"] + adjustments.get("uniqueness", 0)))
+        
+        return participant
+    
+    def get_dynamic_style(self, participant: Dict) -> str:
+        """Get a dynamic style based on current anger and patience levels."""
+        base_style = participant.get("style", "")
+        anger = participant.get("stats", {}).get("anger", 50)
+        patience = participant.get("stats", {}).get("patience", 50)
+        
+        # Anger modifiers
+        if anger >= 80:
+            anger_modifier = "EXTREMELY ENRAGED, FURIOUS, SCREAMING with CAPS, uses EXCLAMATION MARKS CONSTANTLY!!!"
+        elif anger >= 60:
+            anger_modifier = "VERY ANGRY, HOSTILE, uses CAPS frequently, aggressive tone"
+        elif anger >= 40:
+            anger_modifier = "moderately frustrated, some CAPS usage"
+        else:
+            anger_modifier = "calm, measured tone"
+        
+        # Patience modifiers
+        if patience <= 20:
+            patience_modifier = "EXTREMELY IMPATIENT, INTERRUPTS, RUSHES through points, agitated"
+        elif patience <= 40:
+            patience_modifier = "impatient, short responses, wants to move on quickly"
+        elif patience <= 60:
+            patience_modifier = "moderately patient, normal pacing"
+        else:
+            patience_modifier = "very patient, takes time to explain, calm demeanor"
+        
+        return f"{base_style}, {anger_modifier}, {patience_modifier}"
+    
+    def handle_kofi_webhook(self, webhook_data: Dict) -> Dict:
+        """Handle Ko-fi webhook notifications for donations."""
+        try:
+            # Parse Ko-fi webhook data
+            if 'type' in webhook_data and webhook_data['type'] == 'Donation':
+                donor_name = webhook_data.get('from_name', 'Anonymous')
+                amount = webhook_data.get('amount', 0)
+                message = webhook_data.get('message', '')
+                
+                return {
+                    'success': True,
+                    'donor': donor_name,
+                    'amount': amount,
+                    'message': message,
+                    'timestamp': datetime.now().isoformat()
+                }
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e)
+            }
+        
+        return {'success': False, 'error': 'Invalid webhook data'}
 
 def main():
     st.set_page_config(
@@ -721,6 +931,71 @@ def main():
         background-color: #1e1e1e;
         border: 1px solid #444444;
     }
+    
+    /* Stat bubbles styling */
+    .stat-bubbles {
+        display: flex;
+        gap: 0.3rem;
+        margin-bottom: 0.2rem;
+        justify-content: flex-start;
+    }
+    
+    .stat-bubble {
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #000000;
+        border-radius: 50%;
+        width: 1.5rem;
+        height: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: bold;
+        border: 1px solid rgba(0, 0, 0, 0.3);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    
+    .anger-bubble {
+        background-color: rgba(255, 0, 0, 0.8);
+        color: white;
+    }
+    
+    .patience-bubble {
+        background-color: rgba(0, 255, 0, 0.8);
+        color: white;
+    }
+    
+    .stat-label {
+        font-size: 0.6rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-right: 0.2rem;
+        font-weight: bold;
+    }
+    
+    /* Donation section styling */
+    .donation-section {
+        background-color: rgba(255, 215, 0, 0.05);
+        padding: 0.5rem;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        margin: 0.5rem 0;
+    }
+    
+    .donation-tier {
+        background-color: rgba(255, 255, 255, 0.05);
+        padding: 0.3rem 0.5rem;
+        border-radius: 6px;
+        margin: 0.2rem 0;
+        border-left: 3px solid #FFD700;
+    }
+    
+    .kofi-button {
+        transition: transform 0.2s ease;
+    }
+    
+    .kofi-button:hover {
+        transform: scale(1.05);
+    }
     </style>
     """, unsafe_allow_html=True)
     
@@ -760,6 +1035,13 @@ def main():
         
         # Delay between responses
         delay = st.slider("Delay between responses (seconds):", min_value=0.0, max_value=5.0, value=1.0, step=0.5)
+        
+        # Competitive mode toggle
+        st.subheader("🏆 Competitive Mode")
+        competitive_mode = st.checkbox("Enable Competitive Mode", value=False, help="Characters have dynamic stats that change based on their performance. Each round is judged by an AI judge.")
+        
+        if competitive_mode:
+            st.info("🎯 In competitive mode, characters start with different anger/patience levels and their stats change based on AI judge feedback each round!")
         
         # Character selection
         st.subheader("🎭 Debate Participants")
@@ -827,6 +1109,22 @@ def main():
                     st.session_state.replay_session = session_data
             except:
                 st.error("❌ Invalid JSON file")
+        
+        # Donation section
+        st.markdown("---")
+        st.markdown("""
+        <div class="donation-section">
+            <h4>☕ Support the Project</h4>
+            <p>If you enjoy this AI debate simulator, consider buying me a coffee!</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Ko-fi donation button
+        st.markdown("""
+        <a href="https://ko-fi.com/marcellinorau" target="_blank" class="kofi-button">
+            <img height="36" style="border:0px;height:36px;" src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" border="0" alt="Buy Me a Coffee at ko-fi.com" />
+        </a>
+        """, unsafe_allow_html=True)
     
     # Main content area
     if start_debate:
@@ -872,7 +1170,8 @@ def main():
                             "style": combined_style,
                             "gender": random_char["gender"],
                             "generation": random_char["generation"],
-                            "age": random_char["age"]
+                            "age": random_char["age"],
+                            "stats": debate_system.additional_commentators["random_american"]["stats"].copy()
                         }
                         all_participants.append(random_participant)
                     elif char_key == "random_redditor":
@@ -887,7 +1186,8 @@ def main():
                             "style": "Reddit-savvy, uses Reddit terminology, references subreddit culture, passionate about online communities, uses Reddit slang like 'this', 'underrated comment', 'take my upvote'",
                             "platform": "reddit",
                             "subreddit": random_redditor["subreddit"],
-                            "username": random_redditor["username"]
+                            "username": random_redditor["username"],
+                            "stats": debate_system.additional_commentators["random_redditor"]["stats"].copy()
                         }
                         all_participants.append(random_participant)
                     else:
@@ -975,11 +1275,20 @@ def main():
             conversation = []
             current_message = f"Let's discuss {topic}. What are your thoughts on this issue?"
             
+            # Initialize stats for competitive mode
+            if competitive_mode:
+                for participant in all_participants:
+                    if "stats" not in participant:
+                        participant["stats"] = {"anger": 50, "patience": 50}
+            
             for round_num in range(rounds):
                 # Check if debate was stopped
                 if st.session_state.get('debate_stopped', False):
                     status_text.text("⏹️ Debate stopped by user")
                     break
+                
+                # Store round messages for judging
+                round_messages = []
                 
                 # Each participant responds in the round
                 for participant_index, participant in enumerate(all_participants):
@@ -995,18 +1304,65 @@ def main():
                     progress_bar.progress(progress)
                     status_text.text(f"Round {round_num + 1}/{rounds} - {participant['name']} responding...")
                     
+                    # Update style based on current stats for competitive mode
+                    if competitive_mode:
+                        participant["style"] = debate_system.get_dynamic_style(participant)
+                    
                     # Generate response for this participant
+                    # ALWAYS clean the current_message before passing to AI
+                    import re
+                    # Remove any HTML tags that might have been stored
+                    current_message = re.sub(r'<[^>]+>', '', current_message)
+                    # Clean up any remaining HTML entities
+                    current_message = current_message.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
+                    current_message = current_message.replace('&quot;', '"').replace('&#x27;', "'").replace('&#39;', "'")
+                    # Remove any extra whitespace that might have been left
+                    current_message = ' '.join(current_message.split())
+                    # Final safety check: remove any remaining HTML-like characters
+                    current_message = current_message.replace('<', '').replace('>', '').replace('&', 'and')
+                    current_message = ' '.join(current_message.split())
+                    
                     response = debate_system.generate_response(
                         participant, 
                         current_message, 
                         conversation
                     )
                     
+                    # Final safety check: ensure response is completely clean
+                    import re
+                    clean_response = response
+                    
+                    # ALWAYS clean the response, regardless of whether HTML is detected
+                    # Remove any HTML tags
+                    clean_response = re.sub(r'<[^>]+>', '', clean_response)
+                    # Clean up any remaining HTML entities
+                    clean_response = clean_response.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
+                    clean_response = clean_response.replace('&quot;', '"').replace('&#x27;', "'").replace('&#39;', "'")
+                    # Remove any extra whitespace that might have been left
+                    clean_response = ' '.join(clean_response.split())
+                    
+                    # Final safety check: remove any remaining HTML-like characters
+                    clean_response = clean_response.replace('<', '').replace('>', '').replace('&', 'and')
+                    clean_response = ' '.join(clean_response.split())
+                    
+                    # Debug: Check if clean_response still contains HTML after cleaning
+                    if '<' in clean_response and '>' in clean_response:
+                        st.error(f"CRITICAL: clean_response still contains HTML after cleaning: {clean_response}")
+                        # Force clean it one more time
+                        clean_response = re.sub(r'<[^>]+>', '', clean_response)
+                        clean_response = ' '.join(clean_response.split())
+                    
                     conversation.append({
                         "round": round_num + 1,
                         "speaker": participant["name"],
-                        "message": response,
+                        "message": clean_response,
                         "timestamp": datetime.now().isoformat()
+                    })
+                    
+                    # Add to round messages for judging
+                    round_messages.append({
+                        "speaker": participant["name"],
+                        "message": clean_response
                     })
                     
                     # Determine message styling based on participant type and assigned position
@@ -1067,33 +1423,76 @@ def main():
                         age = participant["age"]
                         display_name = f"{name_part} from {city_part} ({age}yo)"
                     
+                    # Generate stat bubbles for competitive mode
+                    stat_bubbles_html = ""
+                    if competitive_mode and "stats" in participant:
+                        anger = participant["stats"]["anger"]
+                        patience = participant["stats"]["patience"]
+                        stat_bubbles_html = f"""
+                        <div class="stat-bubbles">
+                            <span class="stat-label">A:</span>
+                            <div class="stat-bubble anger-bubble">{anger}</div>
+                            <span class="stat-label">P:</span>
+                            <div class="stat-bubble patience-bubble">{patience}</div>
+                        </div>
+                        """
+                    
+                    # Properly escape the clean_response for HTML template insertion
+                    import html
+                    escaped_clean_response = html.escape(clean_response)
+                    
+                    # Build HTML template with proper CSS classes but clean content
                     if position == "left":
-                        st.markdown(f"""
+                        html_template = f"""
                         <div style="display: flex; justify-content: flex-start;">
                             <div class="debate-container">
                                 <div class="round-header">Round {round_num + 1}</div>
                                 <div class="{message_class}">
+                                    {stat_bubbles_html}
                                     <div class="speaker-name">{emoji} {display_name}</div>
-                                    {response}
+                                    {escaped_clean_response}
                                 </div>
                             </div>
                         </div>
-                        """, unsafe_allow_html=True)
+                        """
                     else:
-                        st.markdown(f"""
+                        html_template = f"""
                         <div style="display: flex; justify-content: flex-end;">
                             <div class="debate-container">
                                 <div class="round-header">Round {round_num + 1}</div>
                                 <div class="{message_class}">
+                                    {stat_bubbles_html}
                                     <div class="speaker-name">{emoji} {display_name}</div>
-                                    {response}
+                                    {escaped_clean_response}
                                 </div>
                             </div>
                         </div>
-                        """, unsafe_allow_html=True)
+                        """
                     
-                    current_message = response
+                    st.markdown(html_template, unsafe_allow_html=True)
+                    
+                    current_message = clean_response
                     time.sleep(delay)
+                
+                # Judge the round in competitive mode
+                if competitive_mode and round_messages:
+                    status_text.text(f"Round {round_num + 1}/{rounds} - AI Judge evaluating...")
+                    
+                    # Get judge feedback
+                    judge_adjustments = debate_system.judge_round(round_messages, all_participants)
+                    
+                    # Apply adjustments to each participant
+                    for participant in all_participants:
+                        if participant["name"] in judge_adjustments:
+                            debate_system.adjust_character_stats(participant, judge_adjustments[participant["name"]])
+                    
+                    # Show judge feedback
+                    st.markdown(f"""
+                    <div style="background-color: rgba(255, 215, 0, 0.1); padding: 0.5rem; border-radius: 8px; margin: 0.5rem 0; border-left: 4px solid #FFD700;">
+                        <strong>🏆 Round {round_num + 1} Judge Feedback:</strong><br>
+                        {len(round_messages)} responses evaluated. Stats updated based on performance.
+                    </div>
+                    """, unsafe_allow_html=True)
                 
                 # Check if we should break after all participants in this round
                 if st.session_state.get('debate_stopped', False):
@@ -1103,6 +1502,40 @@ def main():
             if not st.session_state.get('debate_stopped', False):
                 progress_bar.progress(1.0)
                 status_text.text("✅ Debate complete!")
+                
+                # Show final stats summary for competitive mode
+                if competitive_mode:
+                    st.markdown("## 🏆 Final Competitive Mode Results")
+                    st.markdown("### 📊 Character Performance Summary:")
+                    
+                    for participant in all_participants:
+                        if "stats" in participant:
+                            anger = participant["stats"]["anger"]
+                            patience = participant["stats"]["patience"]
+                            uniqueness = participant["stats"]["uniqueness"]
+                            
+                            # Determine performance rating
+                            total_score = anger + patience + uniqueness
+                            if total_score >= 240:
+                                performance = "🌟 EXCELLENT"
+                                color = "#00FF00"
+                            elif total_score >= 180:
+                                performance = "👍 GOOD"
+                                color = "#FFFF00"
+                            elif total_score >= 120:
+                                performance = "😐 AVERAGE"
+                                color = "#FFA500"
+                            else:
+                                performance = "😞 POOR"
+                                color = "#FF0000"
+                            
+                            st.markdown(f"""
+                            <div style="background-color: rgba(255, 255, 255, 0.05); padding: 0.5rem; border-radius: 8px; margin: 0.3rem 0;">
+                                <strong>{participant['name']}</strong><br>
+                                Anger: {anger} | Patience: {patience} | Uniqueness: {uniqueness}<br>
+                                <span style="color: {color}; font-weight: bold;">{performance}</span>
+                            </div>
+                            """, unsafe_allow_html=True)
             else:
                 progress_bar.progress(progress)
                 status_text.text("⏹️ Debate stopped by user")
@@ -1115,7 +1548,9 @@ def main():
                 "session_start": datetime.now().isoformat(),
                 "topic": topic,
                 "rounds": rounds,
-                "conversation": conversation
+                "conversation": conversation,
+                "competitive_mode": competitive_mode,
+                "participants": [{"name": p["name"], "stats": p.get("stats", {})} for p in all_participants] if competitive_mode else []
             }
             
             # Download button
@@ -1201,29 +1636,36 @@ def main():
                 # Use assigned position for replay
                 position = "left" if speaker in left_speakers else "right"
                 
+                # Properly escape the message for HTML template insertion
+                import html
+                escaped_message = html.escape(message)
+                
+                # Build HTML template for replay with proper CSS classes
                 if position == "left":
-                    st.markdown(f"""
+                    html_template = f"""
                     <div style="display: flex; justify-content: flex-start;">
                         <div class="debate-container">
                             <div class="round-header">Round {round_num}</div>
                             <div class="{message_class}">
                                 <div class="speaker-name">{emoji} {speaker}</div>
-                                {message}
+                                {escaped_message}
                             </div>
                         </div>
                     </div>
-                    """, unsafe_allow_html=True)
+                    """
                 else:
-                    st.markdown(f"""
+                    html_template = f"""
                     <div style="display: flex; justify-content: flex-end;">
                         <div class="debate-container">
                             <div class="{message_class}">
                                 <div class="speaker-name">{emoji} {speaker}</div>
-                                {message}
+                                {escaped_message}
                             </div>
                         </div>
                     </div>
-                    """, unsafe_allow_html=True)
+                    """
+                
+                st.markdown(html_template, unsafe_allow_html=True)
     
     # Info section
     if not start_debate and 'replay_session' not in st.session_state:
