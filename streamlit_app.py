@@ -642,12 +642,18 @@ Be fair and consistent. Consider emotional escalation, argument quality, and ori
         return {'success': False, 'error': 'Invalid webhook data'}
 
 def main():
-    st.set_page_config(
-        page_title="AI Political Debate Simulator",
-        page_icon="🤖",
-        layout="wide",
-        initial_sidebar_state="expanded"
-    )
+    # Configure Streamlit for Railway
+    if 'PORT' in os.environ:
+        port = int(os.environ['PORT'])
+        # This won't change the current session but will affect the next run
+        st.set_page_config(page_title="AI Political Debate Simulator")
+    else:
+        st.set_page_config(
+            page_title="AI Political Debate Simulator",
+            page_icon="🤖",
+            layout="wide",
+            initial_sidebar_state="expanded"
+        )
     
     # Custom CSS for dark theme styling
     st.markdown("""
