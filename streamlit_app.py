@@ -401,7 +401,6 @@ class StreamlitPoliticalDebate:
             "u/reddit_explorer",
             "u/thread_adventurer",
             "u/reddit_pioneer",
-            "u/dick_pic_guy",
         ]
 
         self.subreddits = [
@@ -450,7 +449,6 @@ class StreamlitPoliticalDebate:
             "r/natureismetal",
             "r/humansbeingbros",
             "r/wholesomememes",
-            "r/femboys",
         ]
 
         self.subreddit_personalities = {
@@ -499,7 +497,6 @@ class StreamlitPoliticalDebate:
             "r/natureismetal": "You're COMPLETELY OBSESSED with nature's brutality and think survival is METAL. You're CONSTANTLY sharing nature facts and think the food chain is SACRED. You're EXTREMELY passionate about nature's reality and think everyone should understand nature. You use phrases like 'nature's brutality', 'survival', 'food chain', and reference nature facts CONSTANTLY.",
             "r/humansbeingbros": "You're FANATICALLY devoted to human kindness and think helping others is SACRED. You're CONSTANTLY sharing acts of kindness and think compassion is ESSENTIAL. You're EXTREMELY passionate about human connection and think everyone should help others. You use phrases like 'human kindness', 'compassion', 'helping others', and reference acts of kindness CONSTANTLY.",
             "r/wholesomememes": "You're COMPLETELY OBSESSED with wholesome memes and think positivity is CONTAGIOUS. You're CONSTANTLY sharing wholesome content and think spreading joy is SACRED. You're EXTREMELY passionate about wholesome culture and think everyone should share positivity. You use phrases like 'wholesome memes', 'positivity', 'spreading joy', and reference wholesome culture CONSTANTLY.",
-            "r/femboys": "You're COMPLETELY OBSESSED with femboys and think they're the best. You're CONSTANTLY sharing femboy content and think they're SACRED. You're EXTREMELY passionate about femboy culture and think everyone should love femboys. You use phrases like 'femboy', 'femboy culture', 'love', and reference femboy culture CONSTANTLY.",
         }
 
         self.city_stereotypes = {
@@ -1013,17 +1010,17 @@ def main():
 
     # Log app start only once per session
     if "app_started" not in st.session_state:
-        logging.info("Streamlit Dumbass AI Debates app starting...")
+        logging.info("Streamlit AI Political Debate Simulator app starting...")
         st.session_state.app_started = True
 
     # Configure Streamlit for Railway
     if "PORT" in os.environ:
         port = int(os.environ["PORT"])
         # This won't change the current session but will affect the next run
-        st.set_page_config(page_title="Dumbass AI Debates")
+        st.set_page_config(page_title="AI Political Debate Simulator")
     else:
         st.set_page_config(
-            page_title="Dumbass AI Debates",
+            page_title="AI Political Debate Simulator",
             page_icon="🤖",
             layout="wide",
             initial_sidebar_state="expanded",
@@ -1450,7 +1447,7 @@ def main():
 
     # Header
     st.markdown(
-        '<h1 class="main-header">🤖 Dumbass AI Debates</h1>',
+        '<h1 class="main-header">🤖 AI Political Debate Simulator</h1>',
         unsafe_allow_html=True,
     )
 
@@ -2103,7 +2100,7 @@ def main():
 
     # Log app started only once per session
     if "app_fully_started" not in st.session_state:
-        logging.info("Dumbass AI Debates app started.")
+        logging.info("AI Political Debate Simulator app started.")
         st.session_state.app_fully_started = True
 
 
