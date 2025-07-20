@@ -1041,7 +1041,7 @@ def main():
     
     /* Main header styling */
     .main-header {
-        font-size: 3rem;
+        font-size: 3.5rem;
         font-weight: bold;
         text-align: center;
         color: #64b5f6;
@@ -1053,172 +1053,212 @@ def main():
     .debate-container {
         background-color: transparent;
         padding: 0.3rem;
-        margin: 0.3rem 0;
+        margin: 0.2rem 0;
         border-radius: 12px;
-        max-width: 70%;
+        max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* Left-aligned messages (Democrat, Marxist, Catholic, Evangelist, Random American, Master Baiter, Chinese Communist) */
+    .democrat-message,
+    .marxist-message,
+    .catholic-message,
+    .evangelist-message,
+    .random-american-message,
+    .master-baiter-message,
+    .chinese-communist-message {
+        margin-left: 5%;
+        margin-right: 40%;
+        max-width: 100%;
+        transform: translateX(-20px);
+    }
+    
+    /* Right-aligned messages (Republican, Redditor, Anarcho, Monarchist, Islamic) */
+    .republican-message,
+    .redditor-message,
+    .anarcho-message,
+    .monarchist-message,
+    .islamic-message {
+        margin-left: 40%;
+        margin-right: 5%;
+        max-width: 100%;
+        transform: translateX(20px);
     }
     
     /* Democratic message styling */
     .democrat-message {
         background-color: rgba(13, 71, 161, 0.85);
-        padding: 0.5rem 0.75rem;
+        padding: 1.5rem 1.2rem;
         border-radius: 15px 15px 15px 3px;
-        margin: 0.2rem 0;
+        margin-top: 0.1rem;
+        margin-bottom: 0.1rem;
         color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        font-size: 0.9rem;
-        line-height: 1.3;
+        font-size: 1.3rem;
+        line-height: 1.6;
         word-wrap: break-word;
     }
     
     /* Republican message styling */
     .republican-message {
         background-color: rgba(183, 28, 28, 0.85);
-        padding: 0.5rem 0.75rem;
+        padding: 1.5rem 1.2rem;
         border-radius: 15px 15px 3px 15px;
-        margin: 0.2rem 0;
+        margin-top: 0.1rem;
+        margin-bottom: 0.1rem;
         color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        font-size: 0.9rem;
-        line-height: 1.3;
+        font-size: 1.3rem;
+        line-height: 1.6;
         word-wrap: break-word;
     }
     
     /* Redditor message styling */
     .redditor-message {
         background-color: rgba(199, 21, 133, 0.85);
-        padding: 0.5rem 0.75rem;
+        padding: 1.5rem 1.2rem;
         border-radius: 15px 15px 3px 15px;
-        margin: 0.2rem 0;
+        margin-top: 0.1rem;
+        margin-bottom: 0.1rem;
         color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        font-size: 0.9rem;
-        line-height: 1.3;
+        font-size: 1.3rem;
+        line-height: 1.6;
         word-wrap: break-word;
     }
     
     /* Marxist message styling */
     .marxist-message {
         background-color: rgba(198, 40, 40, 0.85);
-        padding: 0.5rem 0.75rem;
+        padding: 1.5rem 1.2rem;
         border-radius: 15px 15px 15px 3px;
-        margin: 0.2rem 0;
+        margin-top: 0.1rem;
+        margin-bottom: 0.1rem;
         color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        font-size: 0.9rem;
-        line-height: 1.3;
+        font-size: 1.3rem;
+        line-height: 1.6;
         word-wrap: break-word;
     }
     
     /* Anarcho message styling */
     .anarcho-message {
         background-color: rgba(230, 81, 0, 0.85);
-        padding: 0.5rem 0.75rem;
+        padding: 1.5rem 1.2rem;
         border-radius: 15px 15px 3px 15px;
-        margin: 0.2rem 0;
+        margin-top: 0.1rem;
+        margin-bottom: 0.1rem;
         color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        font-size: 0.9rem;
-        line-height: 1.3;
+        font-size: 1.3rem;
+        line-height: 1.6;
         word-wrap: break-word;
     }
     
     /* Catholic message styling */
     .catholic-message {
         background-color: rgba(33, 33, 33, 0.85);
-        padding: 0.5rem 0.75rem;
+        padding: 1.5rem 1.2rem;
         border-radius: 15px 15px 15px 3px;
-        margin: 0.2rem 0;
+        margin-top: 0.1rem;
+        margin-bottom: 0.1rem;
         color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        font-size: 0.9rem;
-        line-height: 1.3;
+        font-size: 1.3rem;
+        line-height: 1.6;
         word-wrap: break-word;
     }
     
     /* Monarchist message styling */
     .monarchist-message {
         background-color: rgba(74, 20, 140, 0.85);
-        padding: 0.5rem 0.75rem;
+        padding: 1.5rem 1.2rem;
         border-radius: 15px 15px 3px 15px;
-        margin: 0.2rem 0;
+        margin-top: 0.1rem;
+        margin-bottom: 0.1rem;
         color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        font-size: 0.9rem;
-        line-height: 1.3;
+        font-size: 1.3rem;
+        line-height: 1.6;
         word-wrap: break-word;
     }
     
     /* Islamic message styling */
     .islamic-message {
         background-color: rgba(27, 94, 32, 0.85);
-        padding: 0.5rem 0.75rem;
+        padding: 1.5rem 1.2rem;
         border-radius: 15px 15px 3px 15px;
-        margin: 0.2rem 0;
+        margin-top: 0.1rem;
+        margin-bottom: 0.1rem;
         color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        font-size: 0.9rem;
-        line-height: 1.3;
+        font-size: 1.3rem;
+        line-height: 1.6;
         word-wrap: break-word;
     }
     
     /* Evangelist message styling */
     .evangelist-message {
         background-color: rgba(141, 110, 99, 0.85);
-        padding: 0.5rem 0.75rem;
+        padding: 1.5rem 1.2rem;
         border-radius: 15px 15px 15px 3px;
-        margin: 0.2rem 0;
+        margin-top: 0.1rem;
+        margin-bottom: 0.1rem;
         color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        font-size: 0.9rem;
-        line-height: 1.3;
+        font-size: 1.3rem;
+        line-height: 1.6;
         word-wrap: break-word;
     }
     
     /* Random American message styling */
     .random-american-message {
         background-color: rgba(230, 81, 0, 0.85);
-        padding: 0.5rem 0.75rem;
+        padding: 1.5rem 1.2rem;
         border-radius: 15px 15px 15px 3px;
-        margin: 0.2rem 0;
+        margin-top: 0.1rem;
+        margin-bottom: 0.1rem;
         color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        font-size: 0.9rem;
-        line-height: 1.3;
+        font-size: 1.3rem;
+        line-height: 1.6;
         word-wrap: break-word;
     }
     
     /* Master Baiter message styling */
     .master-baiter-message {
         background-color: rgba(0, 0, 0, 0.85);
-        padding: 0.5rem 0.75rem;
+        padding: 1.5rem 1.2rem;
         border-radius: 15px 15px 15px 3px;
-        margin: 0.2rem 0;
+        margin-top: 0.1rem;
+        margin-bottom: 0.1rem;
         color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        font-size: 0.9rem;
-        line-height: 1.3;
+        font-size: 1.3rem;
+        line-height: 1.6;
         word-wrap: break-word;
     }
     
     /* Chinese Communist message styling */
     .chinese-communist-message {
         background-color: rgba(139, 0, 0, 0.85);
-        padding: 0.5rem 0.75rem;
+        padding: 1.5rem 1.2rem;
         border-radius: 15px 15px 15px 3px;
-        margin: 0.2rem 0;
+        margin-top: 0.1rem;
+        margin-bottom: 0.1rem;
         color: #ffffff;
         box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        font-size: 0.9rem;
-        line-height: 1.3;
+        font-size: 1.3rem;
+        line-height: 1.6;
         word-wrap: break-word;
     }
     
     /* Speaker name styling */
     .speaker-name {
         font-weight: bold;
-        font-size: 0.8rem;
-        margin-bottom: 0.2rem;
+        font-size: 1.5rem;
+        margin-bottom: 0.3rem;
         color: #ffffff;
         opacity: 0.9;
     }
@@ -1226,15 +1266,16 @@ def main():
     /* Round header styling */
     .round-header {
         background-color: #2d2d2d;
-        padding: 0.2rem 0.6rem;
+        padding: 0.4rem 1rem;
         border-radius: 10px;
         text-align: center;
         font-weight: bold;
-        margin: 0.5rem 0;
+        margin: 0.7rem auto;
         color: #ffffff;
         border: 1px solid #444444;
-        font-size: 0.75rem;
-        display: inline-block;
+        font-size: 1rem;
+        display: block;
+        width: fit-content;
     }
     
     /* Chat flow improvements */
@@ -1249,7 +1290,7 @@ def main():
     
     /* Message spacing */
     .debate-container:not(:last-child) {
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.2rem;
     }
     
     /* General text styling */
@@ -1259,6 +1300,31 @@ def main():
     
     p, div, span {
         color: #ffffff !important;
+    }
+    
+    /* Reduce spacing in main content area */
+    .main .block-container {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    /* Reduce spacing between elements */
+    .stMarkdown {
+        margin-bottom: 0.5rem;
+    }
+    
+    .stSubheader {
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Make sidebar more compact */
+    .css-1d391kg {
+        background-color: #0e1117;
+        padding: 1rem;
     }
     
     /* Sidebar styling */
