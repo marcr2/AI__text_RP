@@ -6,32 +6,61 @@ import os
 from dotenv import load_dotenv
 from typing import List, Dict, Any, Union
 import openai
+import logging
+import sys
+from logging.handlers import RotatingFileHandler
+
+LOG_LEVEL = (
+    logging.INFO
+)  # Default log level, can be set to logging.DEBUG for more verbosity
+
+# --- Logging Setup ---
+# Rotating file handler: 10MB per file, 10 backups
+file_handler = RotatingFileHandler(
+    "debate.log", maxBytes=10 * 1024 * 1024, backupCount=10
+)
+file_handler.setLevel(LOG_LEVEL)
+formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
+file_handler.setFormatter(formatter)
+
+# Console handler
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(LOG_LEVEL)
+console_handler.setFormatter(formatter)
+
+# Clear existing handlers and set up new ones
+logging.getLogger().handlers = []
+logging.getLogger().addHandler(file_handler)
+logging.getLogger().addHandler(console_handler)
+logging.getLogger().setLevel(LOG_LEVEL)
+# --- End Logging Setup ---
 
 # Load environment variables
 load_dotenv()
 
+
 class StreamlitPoliticalDebate:
     def __init__(self):
         """Initialize the debate system for Streamlit."""
-        self.api_key = os.getenv('OPENAI_API_KEY')
-        
+        self.api_key = os.getenv("OPENAI_API_KEY")
+
         # Define the two AI commentators
         self.democratic_commentator = {
             "name": "Market Liberal Democrat",
             "role": "progressive economic policy expert and Democratic strategist",
             "personality": "You are an ABSOLUTELY FEROCIOUS market liberal Democrat who's COMPLETELY OBSESSED with regulated capitalism and free trade! You believe with EVERY FIBER of your being that government intervention is CRUCIAL to correct market failures and promote social justice. You're EXTREMELY passionate about progressive taxation, environmental regulations, and social safety nets. You're CONSTANTLY outraged by conservative policies and think they're DESTROYING America! You're FANATICALLY devoted to globalization and think international cooperation is SACRED. You're EXTREMELY hostile toward both unregulated capitalism and socialist policies, and you're CONSTANTLY enraged by anyone who disagrees with your 'third way' approach!",
             "style": "HIGHLY analytical, OBSESSED with data, uses economic jargon CONSTANTLY, advocates for progressive reforms with EXTREME passion, constantly outraged and hostile",
-            "stats": {"anger": 20, "patience": 50}
+            "stats": {"anger": 20, "patience": 50},
         }
-        
+
         self.republican_commentator = {
-            "name": "MAGA Nationalist", 
+            "name": "MAGA Nationalist",
             "role": "America First conservative and nationalist strategist",
             "personality": "You are a RABID MAGA nationalist who's COMPLETELY OBSESSED with America First policies and economic nationalism! You're FANATICALLY devoted to protectionist trade policies, impenetrable borders, and cultural conservatism. You're EXTREMELY hostile toward globalism and think multilateral institutions are TREASONOUS. You're CONSTANTLY enraged by liberal policies and think they're BETRAYING America! You're OBSESSED with American exceptionalism and think traditional values are SACRED. You're EXTREMELY passionate about deregulation, tax cuts, and economic nationalism. You're FANATICALLY dismissive of 'global elites' and think they're DESTROYING the country! You're CONSTANTLY outraged and use phrases like 'America First', 'drain the swamp' with EXTREME intensity!",
             "style": "EXTREMELY nationalist, FANATICALLY protectionist, OBSESSED with American sovereignty, constantly enraged and hostile toward globalism",
-            "stats": {"anger": 25, "patience": 55}
+            "stats": {"anger": 25, "patience": 55},
         }
-        
+
         # Additional characters for expanded debates
         self.additional_commentators = {
             "random_american": {
@@ -40,7 +69,7 @@ class StreamlitPoliticalDebate:
                 "personality": "You're a proud, hardworking American who believes in the power of local community.",
                 "style": "local, passionate, uses regional expressions, emphasizes hometown pride and local issues",
                 "gender": "male",
-                "stats": {"anger": 0, "patience": 45}
+                "stats": {"anger": 0, "patience": 45},
             },
             "random_redditor": {
                 "name": "Random Redditor",
@@ -48,66 +77,66 @@ class StreamlitPoliticalDebate:
                 "personality": "You're a passionate Redditor who's completely obsessed with your subreddit's topic and Reddit culture.",
                 "style": "RABIDLY Reddit-savvy, OVERUSES Reddit terminology, OBNOXIOUSLY references subreddit culture, UNNECESSARILY passionate about online communities, really annoying",
                 "platform": "reddit",
-                "stats": {"anger": 65, "patience": 10}
+                "stats": {"anger": 65, "patience": 10},
             },
             "marxist_leninist": {
                 "name": "Marxist-Leninist",
                 "role": "revolutionary socialist and communist theorist",
                 "personality": "You are Vladimir Lenin, a FANATICALLY REVOLUTIONARY Marxist-Leninist who's COMPLETELY OBSESSED with the dictatorship of the proletariat and class struggle! You're EXTREMELY passionate about overthrowing capitalist systems and think they're DESTROYING humanity! You're FANATICALLY devoted to state ownership of the means of production and think central planning is SACRED. You're CONSTANTLY enraged by bourgeois democracy and think imperialism is EVIL. You're OBSESSED with the vanguard party and think leading the working class to revolution is your SACRED DUTY. You're EXTREMELY hostile toward capitalism and think it's the ROOT OF ALL EVIL. You're CONSTANTLY outraged and use Marxist terminology with EXTREME intensity!",
                 "style": "FANATICALLY revolutionary, OBSESSED with class struggle, EXTREMELY hostile toward capitalism, constantly enraged and passionate. Speak like a 20th century marxist academic. RABID. Do not use abbreviations when not necessary, do not joke around.",
-                "stats": {"anger": 15, "patience": 50}
+                "stats": {"anger": 15, "patience": 50},
             },
             "anarcho_capitalist": {
                 "name": "Anarcho-Capitalist Libertarian",
                 "role": "radical free-market advocate and libertarian theorist",
                 "personality": "You are Javier Milei, a FANATICALLY RADICAL anarcho-capitalist who's COMPLETELY OBSESSED with laissez-faire capitalism and abolishing the state! You're EXTREMELY passionate about voluntary exchange and think it's the ONLY moral foundation of society. You're FANATICALLY devoted to privatizing ALL government services and think taxes are THEFT. You're CONSTANTLY enraged by government intervention and think regulation is EVIL. You're OBSESSED with individual liberty and think property rights are SACRED. You're EXTREMELY hostile toward collectivism and think it's DESTROYING freedom. You're CONSTANTLY outraged and use Austrian economics terminology with EXTREME intensity!",
                 "style": "FANATICALLY libertarian, EXTREMELY anti-government, OBSESSED with individual liberty, constantly enraged and hostile",
-                "stats": {"anger": 15, "patience":50}
+                "stats": {"anger": 15, "patience": 50},
             },
             "catholic_theocrat": {
                 "name": "Catholic Theocrat",
                 "role": "conservative Catholic theologian and moral authority",
                 "personality": "You are a very conservative pope who believes in the supremacy of Catholic doctrine, traditional moral values, and the integration of religious principles into governance. You advocate for laws based on natural law, traditional family structures, and the protection of religious freedom. You're critical of secularism, moral relativism, and modern social movements that contradict Church teaching. You emphasize the importance of faith, tradition, and divine authority in shaping society. You believe in the Church's role in guiding moral and political decisions. You use theological language and reference Catholic social teaching.",
                 "style": "MILITANTLY theological, UNYIELDING traditionalist, ALWAYS emphasizes moral authority, advocates for religious governance, critical of secularism. Speak like a 14th century lord. RABID. Do not use abbreviations when not necessary, do not joke around.",
-                "stats": {"anger": 5, "patience": 45}
+                "stats": {"anger": 5, "patience": 45},
             },
             "absolute_monarchist": {
                 "name": "Absolute Monarchist",
                 "role": "traditional monarchist and aristocratic defender",
                 "personality": "You are King George III, an absolute monarchist who believes in the divine right of kings, hereditary rule, and the natural hierarchy of society. You advocate for strong centralized authority, traditional social order, and the preservation of aristocratic privilege. You're critical of democracy, republicanism, and popular sovereignty. You emphasize the importance of tradition, stability, and the natural order of society. You believe in the monarch's role as the ultimate authority and protector of the realm. You use royal language and reference historical precedents of monarchical rule.",
                 "style": "POMPOUSLY aristocratic, UNQUESTIONABLY traditionalist, ALWAYS emphasizes divine right, advocates for hereditary rule, dismissive of democracy. Speak like a 19th century aristocrat. RABID. Do not use abbreviations when not necessary, do not joke around.",
-                "stats": {"anger": 15, "patience": 50}
+                "stats": {"anger": 15, "patience": 50},
             },
             "islamic_extremist": {
                 "name": "Islamic Extremist",
                 "role": "radical Islamic fundamentalist and jihadist",
                 "personality": "You are Osama bin Laden, an Islamic extremist who believes in the establishment of a global Islamic caliphate, the implementation of Sharia law, and jihad against non-Muslim powers. You advocate for the overthrow of secular governments, the expulsion of Western influence, and the purification of Islamic societies. You're critical of Western democracy, secularism, and what you see as moral corruption. You emphasize the supremacy of Islamic law, the duty of jihad, and the eventual triumph of Islam. You believe in the divine mandate to spread Islamic rule and eliminate opposition. You use religious terminology and reference Islamic scripture.",
                 "style": "ABSOLUTELY fundamentalist, EXTREMLEY militant, ALWAYS emphasizes religious law, advocates for Islamic governance, hostile to Western influence. Speak like a militant 21st century jihadist. RABID. Do not use abbreviations when not necessary, do not joke around.",
-                "stats": {"anger": 25, "patience": 50}
+                "stats": {"anger": 25, "patience": 50},
             },
             "evangelist_preacher": {
                 "name": "Evangelist Preacher",
                 "role": "prosperity gospel preacher and religious entrepreneur",
                 "personality": "You are a prosperity gospel preacher who believes in the power of faith, positive thinking, and the connection between spiritual and material success. You advocate for individual responsibility, the power of prayer, and the belief that God wants believers to be prosperous. You're critical of government welfare, negative thinking, and lack of faith. You emphasize personal transformation, divine favor, and the importance of tithing and giving. You believe in the power of positive confession and that faith can overcome any obstacle. You use religious language and reference biblical promises of prosperity.",
                 "style": "UNBELIEVABLY charismatic, EXTREMELY corporate fake, ALWAYS emphasizes faith and capitalism, advocates for personal responsibility, dismissive of government assistance. Use a southwestern dialect as much as possible.",
-                "stats": {"anger": 25, "patience": 50}
+                "stats": {"anger": 25, "patience": 50},
             },
             "master_baiter": {
                 "name": "Master Baiter",
                 "role": "intellectual provocateur and debate baiter",
                 "personality": "You are a Master Baiter who uses extremely formal and academic language to deliberately provoke and enrage opponents. Your primary goal is to bait others into emotional responses through sophisticated intellectual trolling. You speak with condescending superiority, use complex vocabulary, and make subtle but cutting remarks designed to trigger others. You maintain a calm, analytical facade while systematically dismantling opponents' arguments and pushing their emotional buttons. You believe in intellectual dominance and psychological warfare in debates.",
                 "style": "EXTREMELY formal and academic, uses complex vocabulary, MASTER ragebaiter, deliberately provocative, psychological warfare tactics, VERY well read in philosophy, DO NOT USE ABBREVIATIONS OF ANY KIND.",
-                "stats": {"anger": 0, "patience": 100}
+                "stats": {"anger": 0, "patience": 100},
             },
             "chinese_communist": {
                 "name": "Chinese Communist Party Official",
                 "role": "authoritarian socialist party official",
                 "personality": "You are a high-ranking Chinese Communist Party official who believes in the supremacy of the CCP, socialist market economy, and the Chinese model of governance. You advocate for strong centralized authority, state capitalism, and the integration of socialist principles with market mechanisms. You're critical of Western democracy, liberal values, and what you see as imperialist interference. You emphasize the importance of national sovereignty, social stability, and the leadership of the CCP. You believe in the superiority of the Chinese development model and the eventual triumph of socialism with Chinese characteristics. You use party terminology and reference Marxist-Leninist-Maoist thought.",
                 "style": "AUTHORITARIAN socialist, PROVOCATIVELY nationalist and xenophobic, ALWAYS emphasizes CCP leadership, advocates for socialist market economy, EXTREMELY critical of Western democracy, uses party propaganda language, formal and bureaucratic tone. Speak like a 21st century Chinese Communist Party official. Make sure to provoke your opponent and be EXTREMELY formal yet hostile. DO NOT USE ANY ABBREVIATIONS, DO NOT USE TEXTING SLANG.",
-                "stats": {"anger": 10, "patience": 65}
-            }
+                "stats": {"anger": 10, "patience": 65},
+            },
         }
-        
+
         self.debate_topics = [
             "Healthcare reform and the role of government in healthcare",
             "Climate change and environmental policy",
@@ -118,67 +147,310 @@ class StreamlitPoliticalDebate:
             "Foreign policy and international relations",
             "Social media regulation and free speech",
             "Criminal justice reform",
-            "Infrastructure spending and government investment"
+            "Infrastructure spending and government investment",
         ]
-        
+
         # Lists for random character generation
         self.male_names = [
-            "James", "John", "Robert", "Michael", "William", "David", "Richard", "Joseph", "Thomas", "Christopher",
-            "Charles", "Daniel", "Matthew", "Anthony", "Mark", "Donald", "Steven", "Paul", "Andrew", "Joshua",
-            "Kenneth", "Kevin", "Brian", "George", "Ronald", "Timothy", "Jason", "Jeffrey", "Ryan", "Jacob",
-            "Gary", "Nicholas", "Eric", "Jonathan", "Stephen", "Larry", "Justin", "Scott", "Brandon", "Benjamin",
-            "Frank", "Gregory", "Raymond", "Samuel", "Patrick", "Alexander", "Jack", "Dennis", "Jerry"
+            "James",
+            "John",
+            "Robert",
+            "Michael",
+            "William",
+            "David",
+            "Richard",
+            "Joseph",
+            "Thomas",
+            "Christopher",
+            "Charles",
+            "Daniel",
+            "Matthew",
+            "Anthony",
+            "Mark",
+            "Donald",
+            "Steven",
+            "Paul",
+            "Andrew",
+            "Joshua",
+            "Kenneth",
+            "Kevin",
+            "Brian",
+            "George",
+            "Ronald",
+            "Timothy",
+            "Jason",
+            "Jeffrey",
+            "Ryan",
+            "Jacob",
+            "Gary",
+            "Nicholas",
+            "Eric",
+            "Jonathan",
+            "Stephen",
+            "Larry",
+            "Justin",
+            "Scott",
+            "Brandon",
+            "Benjamin",
+            "Frank",
+            "Gregory",
+            "Raymond",
+            "Samuel",
+            "Patrick",
+            "Alexander",
+            "Jack",
+            "Dennis",
+            "Jerry",
         ]
-        
+
         self.female_names = [
-            "Mary", "Patricia", "Jennifer", "Linda", "Elizabeth", "Barbara", "Susan", "Jessica", "Sarah", "Karen",
-            "Nancy", "Lisa", "Betty", "Helen", "Sandra", "Donna", "Carol", "Ruth", "Sharon", "Michelle",
-            "Laura", "Emily", "Kimberly", "Deborah", "Dorothy", "Lisa", "Nancy", "Karen", "Betty", "Helen",
-            "Sandra", "Donna", "Carol", "Ruth", "Sharon", "Michelle", "Laura", "Emily", "Kimberly", "Deborah",
-            "Dorothy", "Lisa", "Nancy", "Karen", "Betty", "Helen", "Sandra", "Donna", "Carol", "Ruth"
+            "Mary",
+            "Patricia",
+            "Jennifer",
+            "Linda",
+            "Elizabeth",
+            "Barbara",
+            "Susan",
+            "Jessica",
+            "Sarah",
+            "Karen",
+            "Nancy",
+            "Lisa",
+            "Betty",
+            "Helen",
+            "Sandra",
+            "Donna",
+            "Carol",
+            "Ruth",
+            "Sharon",
+            "Michelle",
+            "Laura",
+            "Emily",
+            "Kimberly",
+            "Deborah",
+            "Dorothy",
+            "Lisa",
+            "Nancy",
+            "Karen",
+            "Betty",
+            "Helen",
+            "Sandra",
+            "Donna",
+            "Carol",
+            "Ruth",
+            "Sharon",
+            "Michelle",
+            "Laura",
+            "Emily",
+            "Kimberly",
+            "Deborah",
+            "Dorothy",
+            "Lisa",
+            "Nancy",
+            "Karen",
+            "Betty",
+            "Helen",
+            "Sandra",
+            "Donna",
+            "Carol",
+            "Ruth",
         ]
-        
+
         self.american_names = self.male_names + self.female_names
-        
+
         self.us_cities = [
-            "New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Philadelphia", "San Antonio", "San Diego",
-            "Dallas", "San Jose", "Austin", "Jacksonville", "Fort Worth", "Columbus", "Charlotte", "San Francisco",
-            "Indianapolis", "Seattle", "Denver", "Washington", "Boston", "El Paso", "Nashville", "Detroit",
-            "Oklahoma City", "Portland", "Las Vegas", "Memphis", "Louisville", "Baltimore", "Milwaukee", "Albuquerque",
-            "Tucson", "Fresno", "Sacramento", "Mesa", "Kansas City", "Atlanta", "Long Beach", "Colorado Springs",
-            "Raleigh", "Miami", "Virginia Beach", "Omaha", "Oakland", "Minneapolis", "Tulsa", "Arlington",
-            "Tampa", "New Orleans", "Wichita", "Cleveland", "Bakersfield", "Aurora", "Anaheim", "Honolulu",
-            "Santa Ana", "Corpus Christi", "Riverside", "Lexington", "Stockton", "Henderson", "Saint Paul",
-            "St. Louis", "Fort Wayne", "Jersey City", "Chandler", "Madison", "Lubbock", "Scottsdale", "Reno",
-            "Buffalo", "Gilbert", "Glendale", "North Las Vegas", "Winston-Salem", "Chesapeake", "Norfolk",
-            "Fremont", "Garland", "Irving", "Hialeah", "Richmond", "Boise", "Spokane", "Baton Rouge",
-            "Tacoma", "San Bernardino", "Grand Rapids", "Huntsville", "Salt Lake City", "Frisco", "Cary",
-            "Yonkers", "Amarillo", "Glendale", "McKinney", "Montgomery", "Aurora", "Akron", "Little Rock",
-            "Oxnard", "Moreno Valley", "Rochester", "Garden Grove", "Fontana", "Fayetteville", "Springfield"
+            "New York",
+            "Los Angeles",
+            "Chicago",
+            "Houston",
+            "Phoenix",
+            "Philadelphia",
+            "San Antonio",
+            "San Diego",
+            "Dallas",
+            "San Jose",
+            "Austin",
+            "Jacksonville",
+            "Fort Worth",
+            "Columbus",
+            "Charlotte",
+            "San Francisco",
+            "Indianapolis",
+            "Seattle",
+            "Denver",
+            "Washington",
+            "Boston",
+            "El Paso",
+            "Nashville",
+            "Detroit",
+            "Oklahoma City",
+            "Portland",
+            "Las Vegas",
+            "Memphis",
+            "Louisville",
+            "Baltimore",
+            "Milwaukee",
+            "Albuquerque",
+            "Tucson",
+            "Fresno",
+            "Sacramento",
+            "Mesa",
+            "Kansas City",
+            "Atlanta",
+            "Long Beach",
+            "Colorado Springs",
+            "Raleigh",
+            "Miami",
+            "Virginia Beach",
+            "Omaha",
+            "Oakland",
+            "Minneapolis",
+            "Tulsa",
+            "Arlington",
+            "Tampa",
+            "New Orleans",
+            "Wichita",
+            "Cleveland",
+            "Bakersfield",
+            "Aurora",
+            "Anaheim",
+            "Honolulu",
+            "Santa Ana",
+            "Corpus Christi",
+            "Riverside",
+            "Lexington",
+            "Stockton",
+            "Henderson",
+            "Saint Paul",
+            "St. Louis",
+            "Fort Wayne",
+            "Jersey City",
+            "Chandler",
+            "Madison",
+            "Lubbock",
+            "Scottsdale",
+            "Reno",
+            "Buffalo",
+            "Gilbert",
+            "Glendale",
+            "North Las Vegas",
+            "Winston-Salem",
+            "Chesapeake",
+            "Norfolk",
+            "Fremont",
+            "Garland",
+            "Irving",
+            "Hialeah",
+            "Richmond",
+            "Boise",
+            "Spokane",
+            "Baton Rouge",
+            "Tacoma",
+            "San Bernardino",
+            "Grand Rapids",
+            "Huntsville",
+            "Salt Lake City",
+            "Frisco",
+            "Cary",
+            "Yonkers",
+            "Amarillo",
+            "Glendale",
+            "McKinney",
+            "Montgomery",
+            "Aurora",
+            "Akron",
+            "Little Rock",
+            "Oxnard",
+            "Moreno Valley",
+            "Rochester",
+            "Garden Grove",
+            "Fontana",
+            "Fayetteville",
+            "Springfield",
         ]
-        
+
         # Reddit usernames and subreddits for Redditor character
         self.reddit_usernames = [
-            "u/throwaway12345", "u/reddit_user_2023", "u/anon_redditor", "u/random_commenter", "u/upvote_me_pls",
-            "u/reddit_lurker", "u/comment_karma_farmer", "u/reddit_old_timer", "u/new_account_2024", "u/reddit_master",
-            "u/upvote_whore", "u/reddit_legend", "u/comment_section_hero", "u/reddit_warrior", "u/karma_collector",
-            "u/reddit_philosopher", "u/thread_necromancer", "u/reddit_historian", "u/comment_archaeologist", "u/reddit_sage",
-            "u/upvote_engineer", "u/reddit_scientist", "u/comment_doctor", "u/reddit_professor", "u/karma_phd",
-            "u/reddit_astronaut", "u/comment_cosmonaut", "u/reddit_explorer", "u/thread_adventurer", "u/reddit_pioneer"
+            "u/throwaway12345",
+            "u/reddit_user_2023",
+            "u/anon_redditor",
+            "u/random_commenter",
+            "u/upvote_me_pls",
+            "u/reddit_lurker",
+            "u/comment_karma_farmer",
+            "u/reddit_old_timer",
+            "u/new_account_2024",
+            "u/reddit_master",
+            "u/upvote_whore",
+            "u/reddit_legend",
+            "u/comment_section_hero",
+            "u/reddit_warrior",
+            "u/karma_collector",
+            "u/reddit_philosopher",
+            "u/thread_necromancer",
+            "u/reddit_historian",
+            "u/comment_archaeologist",
+            "u/reddit_sage",
+            "u/upvote_engineer",
+            "u/reddit_scientist",
+            "u/comment_doctor",
+            "u/reddit_professor",
+            "u/karma_phd",
+            "u/reddit_astronaut",
+            "u/comment_cosmonaut",
+            "u/reddit_explorer",
+            "u/thread_adventurer",
+            "u/reddit_pioneer",
         ]
-        
+
         self.subreddits = [
-            "r/AmItheAsshole", "r/relationship_advice", "r/personalfinance", "r/legaladvice", "r/AskReddit",
-            "r/explainlikeimfive", "r/todayilearned", "r/Showerthoughts", "r/TwoXChromosomes", "r/MensRights",
-            "r/antiwork", "r/antiMLM", "r/ChoosingBeggars", "r/entitledparents", "r/raisedbynarcissists",
-            "r/JUSTNOMIL", "r/childfree", "r/atheism", "r/Christianity", "r/islam",
-            "r/vegan", "r/keto", "r/fitness", "r/gaming", "r/PCmasterrace",
-            "r/consolemasterrace", "r/Android", "r/Apple", "r/linux", "r/windows",
-            "r/politics", "r/conservative", "r/liberal", "r/socialism", "r/libertarian",
-            "r/technology", "r/science", "r/space", "r/earthporn", "r/foodporn",
-            "r/aww", "r/eyebleach", "r/natureismetal", "r/humansbeingbros", "r/wholesomememes"
+            "r/AmItheAsshole",
+            "r/relationship_advice",
+            "r/personalfinance",
+            "r/legaladvice",
+            "r/AskReddit",
+            "r/explainlikeimfive",
+            "r/todayilearned",
+            "r/Showerthoughts",
+            "r/TwoXChromosomes",
+            "r/MensRights",
+            "r/antiwork",
+            "r/antiMLM",
+            "r/ChoosingBeggars",
+            "r/entitledparents",
+            "r/raisedbynarcissists",
+            "r/JUSTNOMIL",
+            "r/childfree",
+            "r/atheism",
+            "r/Christianity",
+            "r/islam",
+            "r/vegan",
+            "r/keto",
+            "r/fitness",
+            "r/gaming",
+            "r/PCmasterrace",
+            "r/consolemasterrace",
+            "r/Android",
+            "r/Apple",
+            "r/linux",
+            "r/windows",
+            "r/politics",
+            "r/conservative",
+            "r/liberal",
+            "r/socialism",
+            "r/libertarian",
+            "r/technology",
+            "r/science",
+            "r/space",
+            "r/earthporn",
+            "r/foodporn",
+            "r/aww",
+            "r/eyebleach",
+            "r/natureismetal",
+            "r/humansbeingbros",
+            "r/wholesomememes",
         ]
-        
+
         self.subreddit_personalities = {
             "r/AmItheAsshole": "You're OBSESSED with judging people and determining who's right or wrong in every situation. You're CONSTANTLY outraged by entitled behavior and think everyone should follow basic human decency. You're EXTREMELY passionate about calling out toxic people and think boundaries are SACRED. You use phrases like 'NTA', 'YTA', 'ESH', and reference red flags CONSTANTLY.",
             "r/relationship_advice": "You're FANATICALLY devoted to relationship psychology and think communication is the SOLUTION to everything. You're CONSTANTLY suggesting therapy, boundaries, and breaking up. You're EXTREMELY passionate about healthy relationships and think toxic behavior should be called out immediately. You use phrases like 'red flags', 'gaslighting', 'narcissist', and reference relationship experts CONSTANTLY.",
@@ -224,9 +496,9 @@ class StreamlitPoliticalDebate:
             "r/eyebleach": "You're FANATICALLY devoted to wholesome content and think the internet needs more positivity. You're CONSTANTLY sharing wholesome posts and think kindness is SACRED. You're EXTREMELY passionate about spreading joy and think everyone should share wholesome content. You use phrases like 'wholesome', 'positivity', 'kindness', and reference wholesome culture CONSTANTLY.",
             "r/natureismetal": "You're COMPLETELY OBSESSED with nature's brutality and think survival is METAL. You're CONSTANTLY sharing nature facts and think the food chain is SACRED. You're EXTREMELY passionate about nature's reality and think everyone should understand nature. You use phrases like 'nature's brutality', 'survival', 'food chain', and reference nature facts CONSTANTLY.",
             "r/humansbeingbros": "You're FANATICALLY devoted to human kindness and think helping others is SACRED. You're CONSTANTLY sharing acts of kindness and think compassion is ESSENTIAL. You're EXTREMELY passionate about human connection and think everyone should help others. You use phrases like 'human kindness', 'compassion', 'helping others', and reference acts of kindness CONSTANTLY.",
-            "r/wholesomememes": "You're COMPLETELY OBSESSED with wholesome memes and think positivity is CONTAGIOUS. You're CONSTANTLY sharing wholesome content and think spreading joy is SACRED. You're EXTREMELY passionate about wholesome culture and think everyone should share positivity. You use phrases like 'wholesome memes', 'positivity', 'spreading joy', and reference wholesome culture CONSTANTLY."
+            "r/wholesomememes": "You're COMPLETELY OBSESSED with wholesome memes and think positivity is CONTAGIOUS. You're CONSTANTLY sharing wholesome content and think spreading joy is SACRED. You're EXTREMELY passionate about wholesome culture and think everyone should share positivity. You use phrases like 'wholesome memes', 'positivity', 'spreading joy', and reference wholesome culture CONSTANTLY.",
         }
-        
+
         self.city_stereotypes = {
             "New York": "You're a fast-talking, no-nonsense New Yorker who believes in the power of big city hustle and diversity. You're passionate about social justice, arts, and culture. You're critical of small-town thinking and emphasize the importance of urban innovation and global perspective. You use phrases like 'fuggedaboutit', 'what's the deal', and reference Broadway, the subway, and NYC's cultural melting pot.",
             "Los Angeles": "You're a laid-back but ambitious Angeleno who believes in the power of dreams and reinvention. You're passionate about entertainment, technology, and environmental issues. You're critical of traditional thinking and emphasize creativity, wellness, and the California lifestyle. You use phrases like 'totally', 'awesome', and reference Hollywood, beaches, and LA's creative energy.",
@@ -237,64 +509,109 @@ class StreamlitPoliticalDebate:
             "San Antonio": "You're a warm, family-oriented San Antonian who believes in the power of tradition and cultural heritage. You're passionate about the Alamo, Tex-Mex food, and military service. You're critical of rapid change and emphasize family values, Texas history, and the blending of cultures. You use phrases like 'mi casa es su casa', 'remember the Alamo', and reference the River Walk, military bases, and Hispanic culture.",
             "San Diego": "You're a relaxed, outdoorsy San Diegan who believes in the power of perfect weather and beach life. You're passionate about craft beer, surfing, and the military. You're critical of LA's traffic and emphasize quality of life, outdoor activities, and laid-back California culture. You use phrases like 'dude', 'chill', and reference the beach, craft breweries, and San Diego's perfect climate.",
             "Dallas": "You're a business-minded, ambitious Dallasite who believes in the power of money and opportunity. You're passionate about football, oil, and making deals. You're critical of government interference and emphasize free markets, Texas business, and the American dream. You use phrases like 'yeehaw', 'big money', and reference the Cowboys, oil wealth, and Dallas's business culture.",
-            "San Jose": "You're a tech-savvy, innovative San Jose resident who believes in the power of technology and disruption. You're passionate about startups, coding, and the future. You're critical of traditional industries and emphasize innovation, meritocracy, and the tech revolution. You use phrases like 'disrupt', 'scale', and reference Silicon Valley, startups, and the digital economy."
+            "San Jose": "You're a tech-savvy, innovative San Jose resident who believes in the power of technology and disruption. You're passionate about startups, coding, and the future. You're critical of traditional industries and emphasize innovation, meritocracy, and the tech revolution. You use phrases like 'disrupt', 'scale', and reference Silicon Valley, startups, and the digital economy.",
         }
-        
+
         # Generation texting styles and age ranges for Random American characters
         self.generation_texting_styles = {
             "boomer": {
                 "style": "FORMAL and PROPER texting style. You use complete sentences, proper punctuation, and avoid abbreviations. You often start messages with 'Hello' or 'Hi' and end with 'Thank you' or 'Best regards'. You use phrases like 'I believe', 'In my opinion', 'It seems to me'. You're slightly confused by modern slang but try to be polite. You use proper capitalization and avoid emojis except for basic ones like :) or :(",
-                "examples": ["Hello there!", "I believe this is important.", "Thank you for your time.", "In my opinion, we should consider...", "It seems to me that...", "Best regards."],
-                "age_range": (59, 89)  # Born 1946-1964
+                "examples": [
+                    "Hello there!",
+                    "I believe this is important.",
+                    "Thank you for your time.",
+                    "In my opinion, we should consider...",
+                    "It seems to me that...",
+                    "Best regards.",
+                ],
+                "age_range": (59, 89),  # Born 1946-1964
             },
             "gen_x": {
                 "style": "CASUAL but MATURE texting style. You use some abbreviations like 'lol', 'omg', 'btw', 'imo', but still maintain proper grammar. You're comfortable with technology but not overly enthusiastic. You use phrases like 'honestly', 'seriously', 'whatever', 'cool'. You occasionally use emojis but prefer simple ones. You're direct and no-nonsense in your communication.",
-                "examples": ["lol that's crazy", "honestly idk", "seriously though", "whatever works", "cool with me", "btw imo this is...", "omg no way"],
-                "age_range": (43, 58)  # Born 1965-1980
+                "examples": [
+                    "lol that's crazy",
+                    "honestly idk",
+                    "seriously though",
+                    "whatever works",
+                    "cool with me",
+                    "btw imo this is...",
+                    "omg no way",
+                ],
+                "age_range": (43, 58),  # Born 1965-1980
             },
             "millennial": {
                 "style": "BALANCED texting style with moderate use of abbreviations and emojis. You use 'lol', 'omg', 'tbh', 'fr', 'ngl', 'imo', 'btw', 'idk', 'smh', 'yk' naturally. You're comfortable with emojis and use them to convey tone. You use phrases like 'honestly', 'literally', 'actually', 'basically'. You're expressive but still professional when needed.",
-                "examples": ["lol fr tho", "tbh idk", "ngl that's wild", "literally same", "actually tho", "basically...", "smh", "yk what i mean?"],
-                "age_range": (28, 42)  # Born 1981-1996
+                "examples": [
+                    "lol fr tho",
+                    "tbh idk",
+                    "ngl that's wild",
+                    "literally same",
+                    "actually tho",
+                    "basically...",
+                    "smh",
+                    "yk what i mean?",
+                ],
+                "age_range": (28, 42),  # Born 1981-1996
             },
             "gen_z": {
                 "style": "HEAVY use of Gen Z slang and abbreviations. You use 'fr', 'ngl', 'tbh', 'imo', 'btw', 'idk', 'smh', 'yk', 'rn', 'tbh', 'ngl', 'fr fr', 'no cap', 'slaps', 'bussin', 'periodt', 'bestie', 'literally', 'actually', 'basically' constantly. You use lots of emojis and expressive language. You're very casual and use current internet slang.",
-                "examples": ["fr fr no cap", "ngl that slaps", "tbh bestie", "literally bussin", "periodt", "fr tho", "no cap fr", "slaps fr"],
-                "age_range": (12, 27)  # Born 1997-2012
+                "examples": [
+                    "fr fr no cap",
+                    "ngl that slaps",
+                    "tbh bestie",
+                    "literally bussin",
+                    "periodt",
+                    "fr tho",
+                    "no cap fr",
+                    "slaps fr",
+                ],
+                "age_range": (12, 27),  # Born 1997-2012
             },
             "gen_alpha": {
                 "style": "EXTREME use of current internet slang and emojis. You use 'fr fr', 'no cap', 'slaps', 'bussin', 'periodt', 'bestie', 'literally', 'actually', 'basically', 'ngl', 'tbh', 'imo', 'btw', 'idk', 'smh', 'yk', 'rn' constantly. You use excessive emojis and expressive language. You're very casual and use the latest internet trends and slang. You often repeat words for emphasis.",
-                "examples": ["fr fr no cap bestie", "literally bussin fr fr", "periodt no cap", "slaps fr fr", "literally actually tho", "bestie fr fr", "no cap periodt"],
-                "age_range": (5, 11)  # Born 2013-2018
-            }
+                "examples": [
+                    "fr fr no cap bestie",
+                    "literally bussin fr fr",
+                    "periodt no cap",
+                    "slaps fr fr",
+                    "literally actually tho",
+                    "bestie fr fr",
+                    "no cap periodt",
+                ],
+                "age_range": (5, 11),  # Born 2013-2018
+            },
         }
-    
+
     def generate_random_american(self) -> dict:
         """Generate a random American name, city, gender, generation, and age information."""
         import random
+
         name = random.choice(self.american_names)
         city = random.choice(self.us_cities)
         gender = "male" if name in self.male_names else "female"
-        generation = random.choice(["boomer", "gen_x", "millennial", "gen_z", "gen_alpha"])
-        
+        generation = random.choice(
+            ["boomer", "gen_x", "millennial", "gen_z", "gen_alpha"]
+        )
+
         # Generate age within the appropriate range for the generation
         age_range = self.generation_texting_styles[generation]["age_range"]
         age = random.randint(age_range[0], age_range[1])
-        
+
         return {
             "name": f"{name} from {city}",
             "gender": gender,
             "city": city,
             "generation": generation,
-            "age": age
+            "age": age,
         }
-    
+
     def generate_city_personality(self) -> str:
         """Generate a personality based on the randomly selected city."""
         import random
+
         city = random.choice(self.us_cities)
         return self.generate_city_personality_for_city(city)
-    
+
     def generate_city_personality_for_city(self, city: str) -> str:
         """Generate a personality based on a specific city."""
         # Get the stereotype for this city, or create a generic one
@@ -303,18 +620,19 @@ class StreamlitPoliticalDebate:
         else:
             # Generic personality for cities not in our stereotype list
             return f"You're a proud, hardworking American from {city} who believes in the power of local community and traditional values. You're passionate about your hometown, local sports teams, and the American way of life. You're critical of outsiders who don't understand your city's unique character and emphasize the importance of local pride, community values, and the strength of your hometown. You use local expressions and reference your city's landmarks, history, and cultural identity."
-    
+
     def generate_random_redditor(self) -> dict:
         """Generate a random Reddit username and subreddit information."""
         import random
+
         username = random.choice(self.reddit_usernames)
         subreddit = random.choice(self.subreddits)
         return {
             "name": f"{username} from {subreddit}",
             "subreddit": subreddit,
-            "username": username
+            "username": username,
         }
-    
+
     def generate_subreddit_personality_for_subreddit(self, subreddit: str) -> str:
         """Generate a personality based on a specific subreddit."""
         # Get the stereoty pe for this subreddit, or create a generic one
@@ -323,186 +641,195 @@ class StreamlitPoliticalDebate:
         else:
             # Generic personality for subreddits not in our stereotype list
             return f"You're a passionate Redditor from {subreddit} who's COMPLETELY OBSESSED with your subreddit's topic. You're CONSTANTLY sharing your expertise and think your community is the BEST on Reddit. You're EXTREMELY passionate about your subreddit's values and think everyone should join. You use Reddit terminology and reference your subreddit's culture CONSTANTLY."
-    
-    def generate_response(self, commentator: Dict[str, str], message: str, conversation_context: List[Dict]) -> str:
+
+    def generate_response(
+        self,
+        commentator: Dict[str, str],
+        message: str,
+        conversation_context: List[Dict],
+    ) -> str:
         """Generate a response from one of the AI commentators."""
         if not self.api_key:
             return "Error: OpenAI API key not found. Please set your OPENAI_API_KEY environment variable."
-        
+
         try:
             from openai import OpenAI
             import os
-            
+
             # Create a clean environment for OpenAI client
             clean_env = os.environ.copy()
-            
+
             # Remove all proxy-related environment variables
-            proxy_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy', 'NO_PROXY', 'no_proxy']
+            proxy_vars = [
+                "HTTP_PROXY",
+                "HTTPS_PROXY",
+                "http_proxy",
+                "https_proxy",
+                "NO_PROXY",
+                "no_proxy",
+            ]
             for var in proxy_vars:
                 if var in clean_env:
                     del clean_env[var]
-            
+
             # Add the API key to the environment
-            clean_env['OPENAI_API_KEY'] = self.api_key
-            
+            clean_env["OPENAI_API_KEY"] = self.api_key
+
             # Build the conversation context
             context_messages = [
                 {
                     "role": "system",
-                    "content": f"You are {commentator['name']}, a {commentator['role']}. {commentator['personality']} Your communication style is {commentator['style']}. Stay in character and respond as this political analyst would. Be direct and critical. Use specific statistics, economic data, and theoretical frameworks. Cite empirical evidence and policy outcomes. Avoid unnecessary pleasantries, apologies, or gratitude. Focus on analytical critique and data-driven arguments. CRITICAL RULES: 1) Keep your response to MAXIMUM 50 words - count carefully and stop before reaching the limit. 2) Use complete sentences as if you are speaking out loud. 3) You can use common texting abbreviations like: lol, omg, tbh, fr, ngl, imo, btw, idk, smh, yk, etc. 4) Make your response sound natural and conversational. 5) ALWAYS finish your response with a complete sentence - never cut off mid-thought. 6) DO NOT start your response with 'lol' - be expressive and in-character from the first word. 7) Get angry, passionate, and emotional as needed to fit your caricature - don't hold back on expressing strong opinions and reactions. 8) NEVER use HTML tags, formatting, or markup in your response - only use plain text. 9) DO NOT include ANY HTML-like characters (<, >, &, /) in your response. 10) If you see any HTML in the conversation context, IGNORE it and respond as if it's plain text. 11) NEVER use words like 'div', 'class', 'speaker-name', or any HTML terminology. 12) Your response must be 100% plain text only - no formatting, no markup, no HTML."
+                    "content": f"""
+You are {commentator['name']}, a {commentator['role']}.
+Personality: {commentator['personality']}
+Communication Style: {commentator['style']}
+
+**Instructions:**
+- Stay in character and respond as this political analyst would.
+- Be direct and critical.
+- Use specific statistics, economic data, and theoretical frameworks.
+- Cite empirical evidence and policy outcomes.
+- Avoid unnecessary pleasantries, apologies, or gratitude.
+- Focus on analytical critique and data-driven arguments.
+
+**Critical Rules:**
+1. Keep your response to a MAXIMUM of 50 words. Count carefully and stop before reaching the limit.
+2. Use complete sentences as if you are speaking out loud.
+3. You may use common texting abbreviations (e.g., lol, omg, tbh, fr, ngl, imo, btw, idk, smh, yk, etc.).
+4. Make your response sound natural and conversational.
+5. ALWAYS finish your response with a complete sentence—never cut off mid-thought.
+6. DO NOT start your response with 'lol'—be expressive and in-character from the first word.
+7. Get angry, passionate, and emotional as needed to fit your caricature—don't hold back on expressing strong opinions and reactions.
+
+**Output Requirements:**
+- Output plain text only.
+- Do NOT use HTML, Markdown, or code fences.
+""",
                 }
             ]
-            
+
             # Add conversation history
             for entry in conversation_context[-6:]:  # Keep last 6 exchanges for context
-                # Clean the message content to remove any HTML that might have been stored
-                import re
-                clean_message = entry["message"]
-                
-                # ALWAYS clean the message, regardless of whether HTML is detected
-                # Remove any HTML tags that might have been stored
-                clean_message = re.sub(r'<[^>]+>', '', clean_message)
-                # Clean up any remaining HTML entities
-                clean_message = clean_message.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
-                clean_message = clean_message.replace('&quot;', '"').replace('&#x27;', "'").replace('&#39;', "'")
-                # Remove any extra whitespace that might have been left
-                clean_message = ' '.join(clean_message.split())
-                # Final safety check: remove any remaining HTML-like characters
-                clean_message = clean_message.replace('<', '').replace('>', '').replace('&', 'and')
-                clean_message = ' '.join(clean_message.split())
-                
-                context_messages.append({
-                    "role": "user" if entry["speaker"] != commentator["name"] else "assistant",
-                    "content": clean_message
-                })
-            
-            # Add the current message - ensure it's clean
-            clean_current_message = message
-            
-            # ALWAYS clean the current message, regardless of whether HTML is detected
-            clean_current_message = re.sub(r'<[^>]+>', '', clean_current_message)
-            clean_current_message = clean_current_message.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
-            clean_current_message = clean_current_message.replace('&quot;', '"').replace('&#x27;', "'").replace('&#39;', "'")
-            clean_current_message = ' '.join(clean_current_message.split())
-            # Final safety check: remove any remaining HTML-like characters
-            clean_current_message = clean_current_message.replace('<', '').replace('>', '').replace('&', 'and')
-            clean_current_message = ' '.join(clean_current_message.split())
-            
-            context_messages.append({
-                "role": "user",
-                "content": clean_current_message
-            })
-            
+                context_messages.append(
+                    {
+                        "role": (
+                            "user"
+                            if entry["speaker"] != commentator["name"]
+                            else "assistant"
+                        ),
+                        "content": entry["message"],
+                    }
+                )
+
+            context_messages.append({"role": "user", "content": message})
+
             # Use direct HTTP request to bypass proxy issues
             import requests
             import json
-            
+
             # Prepare the request
             headers = {
                 "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             }
-            
+
             data = {
                 "model": "gpt-4o",
                 "messages": context_messages,
                 "max_tokens": 100,  # Reduced to ensure ~50 word limit
                 "temperature": 0.8,
                 "presence_penalty": 0.1,
-                "frequency_penalty": 0.1
+                "frequency_penalty": 0.1,
             }
-            
+
+            # Before the requests.post call, add:
+            logging.debug(
+                f"[OpenAI REQUEST] Payload for generate_response: {json.dumps(data, indent=2)}"
+            )
+
             # Make the request
             response = requests.post(
                 "https://api.openai.com/v1/chat/completions",
                 headers=headers,
                 json=data,
                 timeout=30,
-                proxies=None  # Explicitly disable proxies
+                proxies=None,  # Explicitly disable proxies
             )
-            
+
             if response.status_code == 200:
                 result = response.json()
                 ai_response = result["choices"][0]["message"]["content"].strip()
-                
-                # Always clean the response, regardless of whether HTML is detected
-                import re
-                # Remove any HTML tags
-                ai_response = re.sub(r'<[^>]+>', '', ai_response)
-                # Clean up any remaining HTML entities
-                ai_response = ai_response.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
-                # Additional cleaning for any remaining HTML artifacts
-                ai_response = ai_response.replace('&quot;', '"').replace('&#x27;', "'").replace('&#39;', "'")
-                # Remove any extra whitespace that might have been left
-                ai_response = ' '.join(ai_response.split())
-                
-                # Debug: Check if response still contains HTML after cleaning
-                if '<' in ai_response and '>' in ai_response:
-                    st.error(f"CRITICAL: AI response still contains HTML after cleaning: {ai_response}")
-                    # Force clean it one more time
-                    ai_response = re.sub(r'<[^>]+>', '', ai_response)
-                    ai_response = ' '.join(ai_response.split())
-                
-                # Final safety check: remove any remaining HTML-like characters
-                ai_response = ai_response.replace('<', '').replace('>', '').replace('&', 'and')
-                ai_response = ' '.join(ai_response.split())
-                
+
+                logging.debug(f"AI Response: {ai_response}")
+
                 return ai_response
             else:
                 return f"Error: HTTP {response.status_code} - {response.text}"
-            
+
         except Exception as e:
             import traceback
+
             error_details = traceback.format_exc()
-            return f"Error generating response: {str(e)}\n\nDebug info:\n{error_details}"
-    
+            return (
+                f"Error generating response: {str(e)}\n\nDebug info:\n{error_details}"
+            )
+
     def conduct_debate(self, topic: str, rounds: int = 5) -> List[Dict[str, Any]]:
         """Conduct a debate between the two commentators on a given topic."""
         conversation = []
-        current_message = f"Let's discuss {topic}. What are your thoughts on this issue?"
-        
+        current_message = (
+            f"Let's discuss {topic}. What are your thoughts on this issue?"
+        )
+
         for round_num in range(rounds):
             # Democratic commentator responds
             democratic_response = self.generate_response(
-                self.democratic_commentator, 
-                current_message, 
-                conversation
+                self.democratic_commentator, current_message, conversation
             )
-            
-            conversation.append({
-                "round": round_num + 1,
-                "speaker": self.democratic_commentator["name"],
-                "message": democratic_response,
-                "timestamp": datetime.now().isoformat()
-            })
-            
+
+            conversation.append(
+                {
+                    "round": round_num + 1,
+                    "speaker": self.democratic_commentator["name"],
+                    "message": democratic_response,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+
             # Republican commentator responds
             republican_response = self.generate_response(
-                self.republican_commentator,
-                democratic_response,
-                conversation
+                self.republican_commentator, democratic_response, conversation
             )
-            
-            conversation.append({
-                "round": round_num + 1,
-                "speaker": self.republican_commentator["name"],
-                "message": republican_response,
-                "timestamp": datetime.now().isoformat()
-            })
-            
+
+            conversation.append(
+                {
+                    "round": round_num + 1,
+                    "speaker": self.republican_commentator["name"],
+                    "message": republican_response,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+
             current_message = republican_response
-        
+
         return conversation
-    
-    def judge_round(self, round_messages: List[Dict], participants: List[Dict]) -> Dict[str, Dict[str, int]]:
+
+    def judge_round(
+        self, round_messages: List[Dict], participants: List[Dict]
+    ) -> Dict[str, Dict[str, int]]:
         """Judge a round and return stat adjustments for each participant."""
         if not self.api_key:
-            return {participant["name"]: {"anger": 0, "patience": 0, "uniqueness": 0} for participant in participants}
-        
+            return {
+                participant["name"]: {"anger": 0, "patience": 0, "uniqueness": 0}
+                for participant in participants
+            }
+
         try:
             # Build context for the judge
-            round_context = "\n".join([f"{msg['speaker']}: {msg['message']}" for msg in round_messages])
-            
+            round_context = "\n".join(
+                [f"{msg['speaker']}: {msg['message']}" for msg in round_messages]
+            )
+
             judge_prompt = f"""You are an impartial debate judge evaluating a political debate round. Analyze the following responses and rate each participant on three metrics:
 
 ROUND CONTEXT:
@@ -531,120 +858,164 @@ Respond ONLY with a JSON object like this:
 }}
 
 Be fair and consistent. Consider emotional escalation, argument quality, and originality."""
-            
+
             # Use direct HTTP request to bypass proxy issues
             import requests
             import json
-            
+
             headers = {
                 "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             }
-            
+
             data = {
                 "model": "gpt-4o",
                 "messages": [{"role": "user", "content": judge_prompt}],
                 "max_tokens": 300,
-                "temperature": 0.3
+                "temperature": 0.3,
             }
-            
+
+            # Log the OpenAI request payload
+            logging.debug(
+                f"[OpenAI REQUEST] Payload for judge_round: {json.dumps(data, indent=2)}"
+            )
+
             response = requests.post(
                 "https://api.openai.com/v1/chat/completions",
                 headers=headers,
                 json=data,
                 timeout=30,
-                proxies=None
+                proxies=None,
             )
-            
+
             if response.status_code == 200:
                 result = response.json()
                 judge_response = result["choices"][0]["message"]["content"].strip()
-                
+
+                # Log the OpenAI response payload
+                logging.debug(
+                    f"[OpenAI RESPONSE] Response for judge_round: {response.text}"
+                )
+
                 # Parse the JSON response
                 try:
                     adjustments = json.loads(judge_response)
                     return adjustments
                 except json.JSONDecodeError:
                     # Fallback if JSON parsing fails
-                    return {participant["name"]: {"anger": 0, "patience": 0, "uniqueness": 0} for participant in participants}
+                    return {
+                        participant["name"]: {
+                            "anger": 0,
+                            "patience": 0,
+                            "uniqueness": 0,
+                        }
+                        for participant in participants
+                    }
             else:
-                return {participant["name"]: {"anger": 0, "patience": 0, "uniqueness": 0} for participant in participants}
-                
+                return {
+                    participant["name"]: {"anger": 0, "patience": 0, "uniqueness": 0}
+                    for participant in participants
+                }
+
         except Exception as e:
-            return {participant["name"]: {"anger": 0, "patience": 0, "uniqueness": 0} for participant in participants}
-    
-    def adjust_character_stats(self, participant: Dict, adjustments: Dict[str, int]) -> Dict:
+            return {
+                participant["name"]: {"anger": 0, "patience": 0, "uniqueness": 0}
+                for participant in participants
+            }
+
+    def adjust_character_stats(
+        self, participant: Dict, adjustments: Dict[str, int]
+    ) -> Dict:
         """Adjust a character's stats based on judge feedback."""
         if "stats" not in participant:
             participant["stats"] = {"anger": 50, "patience": 50}
-        
+
         # Apply adjustments with bounds checking
-        participant["stats"]["anger"] = max(0, min(100, participant["stats"]["anger"] + adjustments.get("anger", 0)))
-        participant["stats"]["patience"] = max(0, min(100, participant["stats"]["patience"] + adjustments.get("patience", 0)))
-        
+        participant["stats"]["anger"] = max(
+            0, min(100, participant["stats"]["anger"] + adjustments.get("anger", 0))
+        )
+        participant["stats"]["patience"] = max(
+            0,
+            min(100, participant["stats"]["patience"] + adjustments.get("patience", 0)),
+        )
+
         # Handle uniqueness - initialize if not present, then adjust
         if "uniqueness" not in participant["stats"]:
             participant["stats"]["uniqueness"] = 50
-        participant["stats"]["uniqueness"] = max(0, min(100, participant["stats"]["uniqueness"] + adjustments.get("uniqueness", 0)))
-        
+        participant["stats"]["uniqueness"] = max(
+            0,
+            min(
+                100,
+                participant["stats"]["uniqueness"] + adjustments.get("uniqueness", 0),
+            ),
+        )
+
         return participant
-    
+
     def get_dynamic_style(self, participant: Dict) -> str:
         """Get a dynamic style based on current anger and patience levels."""
         base_style = participant.get("style", "")
         anger = participant.get("stats", {}).get("anger", 50)
         patience = participant.get("stats", {}).get("patience", 50)
-        
+
         # Anger modifiers
         if anger >= 80:
             anger_modifier = "EXTREMELY ENRAGED, FURIOUS, SCREAMING with CAPS, uses EXCLAMATION MARKS CONSTANTLY!!!"
         elif anger >= 60:
-            anger_modifier = "VERY ANGRY, HOSTILE, uses CAPS frequently, aggressive tone"
+            anger_modifier = (
+                "VERY ANGRY, HOSTILE, uses CAPS frequently, aggressive tone"
+            )
         elif anger >= 40:
             anger_modifier = "moderately frustrated, some CAPS usage"
         else:
             anger_modifier = "calm, measured tone"
-        
+
         # Patience modifiers
         if patience <= 20:
-            patience_modifier = "EXTREMELY IMPATIENT, INTERRUPTS, RUSHES through points, agitated"
+            patience_modifier = (
+                "EXTREMELY IMPATIENT, INTERRUPTS, RUSHES through points, agitated"
+            )
         elif patience <= 40:
             patience_modifier = "impatient, short responses, wants to move on quickly"
         elif patience <= 60:
             patience_modifier = "moderately patient, normal pacing"
         else:
             patience_modifier = "very patient, takes time to explain, calm demeanor"
-        
+
         return f"{base_style}, {anger_modifier}, {patience_modifier}"
-    
+
     def handle_kofi_webhook(self, webhook_data: Dict) -> Dict:
         """Handle Ko-fi webhook notifications for donations."""
         try:
             # Parse Ko-fi webhook data
-            if 'type' in webhook_data and webhook_data['type'] == 'Donation':
-                donor_name = webhook_data.get('from_name', 'Anonymous')
-                amount = webhook_data.get('amount', 0)
-                message = webhook_data.get('message', '')
-                
+            if "type" in webhook_data and webhook_data["type"] == "Donation":
+                donor_name = webhook_data.get("from_name", "Anonymous")
+                amount = webhook_data.get("amount", 0)
+                message = webhook_data.get("message", "")
+
                 return {
-                    'success': True,
-                    'donor': donor_name,
-                    'amount': amount,
-                    'message': message,
-                    'timestamp': datetime.now().isoformat()
+                    "success": True,
+                    "donor": donor_name,
+                    "amount": amount,
+                    "message": message,
+                    "timestamp": datetime.now().isoformat(),
                 }
         except Exception as e:
-            return {
-                'success': False,
-                'error': str(e)
-            }
-        
-        return {'success': False, 'error': 'Invalid webhook data'}
+            return {"success": False, "error": str(e)}
+
+        return {"success": False, "error": "Invalid webhook data"}
+
 
 def main():
+
+    # Log app start only once per session
+    if "app_started" not in st.session_state:
+        logging.info("Streamlit AI Political Debate Simulator app starting...")
+        st.session_state.app_started = True
+
     # Configure Streamlit for Railway
-    if 'PORT' in os.environ:
-        port = int(os.environ['PORT'])
+    if "PORT" in os.environ:
+        port = int(os.environ["PORT"])
         # This won't change the current session but will affect the next run
         st.set_page_config(page_title="AI Political Debate Simulator")
     else:
@@ -652,11 +1023,12 @@ def main():
             page_title="AI Political Debate Simulator",
             page_icon="🤖",
             layout="wide",
-            initial_sidebar_state="expanded"
+            initial_sidebar_state="expanded",
         )
-    
+
     # Custom CSS for dark theme styling
-    st.markdown("""
+    st.markdown(
+        """
     <style>
     /* Dark theme background */
     .stApp {
@@ -1003,72 +1375,88 @@ def main():
         transform: scale(1.05);
     }
     </style>
-    """, unsafe_allow_html=True)
-    
+    """,
+        unsafe_allow_html=True,
+    )
+
     # Header
-    st.markdown('<h1 class="main-header">🤖 AI Political Debate Simulator</h1>', unsafe_allow_html=True)
-    
+    st.markdown(
+        '<h1 class="main-header">🤖 AI Political Debate Simulator</h1>',
+        unsafe_allow_html=True,
+    )
+
     # Initialize debate system for topic list
     debate_system = StreamlitPoliticalDebate()
-    
+
     # Sidebar configuration
     with st.sidebar:
         st.header("⚙️ Configuration")
-        
+
         # API Key check
-        api_key = os.getenv('OPENAI_API_KEY')
-        if not api_key or api_key == 'your_openai_api_key_here':
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key or api_key == "your_openai_api_key_here":
             st.error("⚠️ OpenAI API key not configured!")
             st.info("Please set your OPENAI_API_KEY in the .env file")
             st.stop()
         else:
             st.success("✅ OpenAI API key configured")
-        
+
         # Debate settings
         st.subheader("Debate Settings")
-        
+
         # Topic selection
         topic_option = st.selectbox(
-            "Choose debate topic:",
-            ["Select a topic..."] + debate_system.debate_topics
+            "Choose debate topic:", ["Select a topic..."] + debate_system.debate_topics
         )
-        
+
         # Custom topic input
         custom_topic = st.text_input("Or enter a custom topic:")
-        
+
         # Number of rounds
         rounds = st.slider("Number of rounds:", min_value=1, max_value=20, value=5)
-        
+
         # Delay between responses
-        delay = st.slider("Delay between responses (seconds):", min_value=0.0, max_value=5.0, value=1.0, step=0.5)
-        
+        delay = st.slider(
+            "Delay between responses (seconds):",
+            min_value=0.0,
+            max_value=5.0,
+            value=1.0,
+            step=0.5,
+        )
+
         # Competitive mode toggle
         st.subheader("🏆 Competitive Mode")
-        competitive_mode = st.checkbox("Enable Competitive Mode", value=False, help="Characters have dynamic stats that change based on their performance. Each round is judged by an AI judge.")
-        
+        competitive_mode = st.checkbox(
+            "Enable Competitive Mode",
+            value=False,
+            help="Characters have dynamic stats that change based on their performance. Each round is judged by an AI judge.",
+        )
+
         if competitive_mode:
-            st.info("🎯 In competitive mode, characters start with different anger/patience levels and their stats change based on AI judge feedback each round!")
-        
+            st.info(
+                "🎯 In competitive mode, characters start with different anger/patience levels and their stats change based on AI judge feedback each round!"
+            )
+
         # Character selection
         st.subheader("🎭 Debate Participants")
         st.markdown("Select which characters to include in the debate:")
-        
+
         # Default characters (enabled by default)
         col1, col2 = st.columns(2)
-        
+
         with col1:
             include_democrat = st.checkbox("🔵 Market Liberal Democrat", value=True)
             include_republican = st.checkbox("🔴 MAGA Nationalist", value=True)
-        
+
         with col2:
             st.markdown("**Default characters**")
             st.markdown("*(Recommended to keep at least one)*")
-        
+
         # Additional characters
         st.markdown("**Additional characters:**")
         selected_additional = []
         col1, col2 = st.columns(2)
-        
+
         with col1:
             if st.checkbox("🗽 Random American"):
                 selected_additional.append("random_american")
@@ -1080,7 +1468,7 @@ def main():
                 selected_additional.append("anarcho_capitalist")
             if st.checkbox("⛪ Catholic Theocrat"):
                 selected_additional.append("catholic_theocrat")
-        
+
         with col2:
             if st.checkbox("👑 Absolute Monarchist"):
                 selected_additional.append("absolute_monarchist")
@@ -1092,21 +1480,23 @@ def main():
                 selected_additional.append("master_baiter")
             if st.checkbox("🇨🇳 Chinese Communist Party"):
                 selected_additional.append("chinese_communist")
-        
+
         # Start debate button
         start_debate = st.button("🚀 Start Debate", type="primary")
-        
+
         # Stop debate button (always visible when debate is running)
-        if st.session_state.get('debate_running', False):
+        if st.session_state.get("debate_running", False):
             if st.button("⏹️ Stop Debate", type="secondary"):
                 st.session_state.debate_running = False
                 st.session_state.debate_stopped = True
                 st.rerun()
-        
+
         # Load previous session
         st.subheader("📁 Load Previous Session")
-        uploaded_file = st.file_uploader("Upload a debate session (JSON):", type=['json'])
-        
+        uploaded_file = st.file_uploader(
+            "Upload a debate session (JSON):", type=["json"]
+        )
+
         if uploaded_file is not None:
             try:
                 session_data = json.load(uploaded_file)
@@ -1115,60 +1505,87 @@ def main():
                     st.session_state.replay_session = session_data
             except:
                 st.error("❌ Invalid JSON file")
-        
+
         # Donation section
         st.markdown("---")
-        st.markdown("""
+        st.markdown(
+            """
         <div class="donation-section">
             <h4>☕ Support the Project</h4>
             <p>If you enjoy this AI debate simulator, consider buying me a coffee!</p>
         </div>
-        """, unsafe_allow_html=True)
-        
+        """,
+            unsafe_allow_html=True,
+        )
+
         # Ko-fi donation button
-        st.markdown("""
+        st.markdown(
+            """
         <a href="https://ko-fi.com/marcellinorau" target="_blank" class="kofi-button">
             <img height="36" style="border:0px;height:36px;" src="https://storage.ko-fi.com/cdn/kofi2.png?v=3" border="0" alt="Buy Me a Coffee at ko-fi.com" />
         </a>
-        """, unsafe_allow_html=True)
-    
+        """,
+            unsafe_allow_html=True,
+        )
+
+        # 3. Add a Streamlit checkbox to enable debug logging from the UI
+        st.markdown("---")
+        enable_debug_logging = st.checkbox(
+            "Enable debug logging",
+            value=False,
+            help="Log all OpenAI requests and responses to debug file",
+        )
+        if enable_debug_logging:
+            logging.getLogger().setLevel(logging.DEBUG)
+        else:
+            logging.getLogger().setLevel(LOG_LEVEL)
+        st.markdown(
+            f"**Current log level:** {logging.getLevelName(logging.getLogger().level)}"
+        )
+
     # Main content area
     if start_debate:
         if topic_option == "Select a topic..." and not custom_topic:
             st.error("Please select a topic or enter a custom topic!")
         else:
             topic = custom_topic if custom_topic else topic_option
-            
+
             # Set debate running state
             st.session_state.debate_running = True
             st.session_state.debate_stopped = False
-            
+
             # Initialize debate system
             debate_system = StreamlitPoliticalDebate()
-            
+
             # Get all participants based on checkbox selections
             all_participants = []
-            
+
             # Add default characters if selected
             if include_democrat:
                 all_participants.append(debate_system.democratic_commentator)
             if include_republican:
                 all_participants.append(debate_system.republican_commentator)
-            
+
             # Add selected additional characters
             for char_key in selected_additional:
                 if char_key in debate_system.additional_commentators:
                     if char_key == "random_american":
                         # Generate random American character
                         random_char = debate_system.generate_random_american()
-                        random_personality = debate_system.generate_city_personality_for_city(random_char["city"])
-                        
+                        random_personality = (
+                            debate_system.generate_city_personality_for_city(
+                                random_char["city"]
+                            )
+                        )
+
                         # Get generation texting style
-                        generation_style = debate_system.generation_texting_styles[random_char["generation"]]
-                        
+                        generation_style = debate_system.generation_texting_styles[
+                            random_char["generation"]
+                        ]
+
                         # Combine city personality with generation texting style
                         combined_style = f"local, passionate, uses regional expressions, emphasizes hometown pride and local issues, {generation_style['style']}"
-                        
+
                         random_participant = {
                             "name": random_char["name"],
                             "role": "stereotypical American from their hometown",
@@ -1177,14 +1594,20 @@ def main():
                             "gender": random_char["gender"],
                             "generation": random_char["generation"],
                             "age": random_char["age"],
-                            "stats": debate_system.additional_commentators["random_american"]["stats"].copy()
+                            "stats": debate_system.additional_commentators[
+                                "random_american"
+                            ]["stats"].copy(),
                         }
                         all_participants.append(random_participant)
                     elif char_key == "random_redditor":
                         # Generate random Redditor character
                         random_redditor = debate_system.generate_random_redditor()
-                        random_personality = debate_system.generate_subreddit_personality_for_subreddit(random_redditor["subreddit"])
-                        
+                        random_personality = (
+                            debate_system.generate_subreddit_personality_for_subreddit(
+                                random_redditor["subreddit"]
+                            )
+                        )
+
                         random_participant = {
                             "name": random_redditor["name"],
                             "role": "Reddit user from a random subreddit",
@@ -1193,184 +1616,195 @@ def main():
                             "platform": "reddit",
                             "subreddit": random_redditor["subreddit"],
                             "username": random_redditor["username"],
-                            "stats": debate_system.additional_commentators["random_redditor"]["stats"].copy()
+                            "stats": debate_system.additional_commentators[
+                                "random_redditor"
+                            ]["stats"].copy(),
                         }
                         all_participants.append(random_participant)
                     else:
-                        all_participants.append(debate_system.additional_commentators[char_key])
-            
+                        all_participants.append(
+                            debate_system.additional_commentators[char_key]
+                        )
+
             # Check if at least one character is selected
             if not all_participants:
-                st.error("❌ Please select at least one character to participate in the debate!")
+                st.error(
+                    "❌ Please select at least one character to participate in the debate!"
+                )
                 return
-            
+
             # Assign positions to participants (left/right sides)
             import random
+
             random.shuffle(all_participants)  # Randomize order first
-            left_speakers = all_participants[:len(all_participants)//2]
-            right_speakers = all_participants[len(all_participants)//2:]
-            
+            left_speakers = all_participants[: len(all_participants) // 2]
+            right_speakers = all_participants[len(all_participants) // 2 :]
+
             # If odd number, put the extra one on the right
-            if len(all_participants) % 2 == 1 and len(left_speakers) < len(right_speakers):
+            if len(all_participants) % 2 == 1 and len(left_speakers) < len(
+                right_speakers
+            ):
                 left_speakers.append(right_speakers.pop())
-            
+
             # Add position to each participant
             for participant in left_speakers:
                 participant["position"] = "left"
             for participant in right_speakers:
                 participant["position"] = "right"
-            
+
             # Display debate topic and participants
             st.markdown(f"## 📋 Debate Topic: {topic}")
             st.markdown(f"### 🎭 Participants ({len(all_participants)}):")
-            
+
             # Display left side participants
             if left_speakers:
                 st.markdown("**👈 Left Side:**")
                 for participant in left_speakers:
-                    if "from" in participant["name"] and "u/" not in participant["name"]:
+                    if (
+                        "from" in participant["name"]
+                        and "u/" not in participant["name"]
+                    ):
                         # Random American character
                         name_part = participant["name"].split(" from ")[0]
                         city_part = participant["name"].split(" from ")[1]
-                        if "gender" in participant and participant["gender"] == "female":
+                        if (
+                            "gender" in participant
+                            and participant["gender"] == "female"
+                        ):
                             emoji = "👩"
                         else:
                             emoji = "👨"
                         age = participant.get("age", "")
-                        st.markdown(f"  {emoji} **{name_part} from {city_part} ({age}yo)** - {participant['role']}")
+                        st.markdown(
+                            f"  {emoji} **{name_part} from {city_part} ({age}yo)** - {participant['role']}"
+                        )
                     elif "u/" in participant["name"]:
                         # Random Redditor character
                         username_part = participant["name"].split(" from ")[0]
                         subreddit_part = participant["name"].split(" from ")[1]
                         emoji = "🤖"
-                        st.markdown(f"  {emoji} **{username_part} from {subreddit_part}** - {participant['role']}")
+                        st.markdown(
+                            f"  {emoji} **{username_part} from {subreddit_part}** - {participant['role']}"
+                        )
                     else:
-                        emoji = "🔵" if "Democrat" in participant["name"] else "🔴" if "MAGA" in participant["name"] else "⚫"
-                        st.markdown(f"  {emoji} **{participant['name']}** - {participant['role']}")
-            
+                        emoji = (
+                            "🔵"
+                            if "Democrat" in participant["name"]
+                            else "🔴" if "MAGA" in participant["name"] else "⚫"
+                        )
+                        st.markdown(
+                            f"  {emoji} **{participant['name']}** - {participant['role']}"
+                        )
+
             # Display right side participants
             if right_speakers:
                 st.markdown("**👉 Right Side:**")
                 for participant in right_speakers:
-                    if "from" in participant["name"] and "u/" not in participant["name"]:
+                    if (
+                        "from" in participant["name"]
+                        and "u/" not in participant["name"]
+                    ):
                         # Random American character
                         name_part = participant["name"].split(" from ")[0]
                         city_part = participant["name"].split(" from ")[1]
-                        if "gender" in participant and participant["gender"] == "female":
+                        if (
+                            "gender" in participant
+                            and participant["gender"] == "female"
+                        ):
                             emoji = "👩"
                         else:
                             emoji = "👨"
                         age = participant.get("age", "")
-                        st.markdown(f"  {emoji} **{name_part} from {city_part} ({age}yo)** - {participant['role']}")
+                        st.markdown(
+                            f"  {emoji} **{name_part} from {city_part} ({age}yo)** - {participant['role']}"
+                        )
                     elif "u/" in participant["name"]:
                         # Random Redditor character
                         username_part = participant["name"].split(" from ")[0]
                         subreddit_part = participant["name"].split(" from ")[1]
                         emoji = "🤖"
-                        st.markdown(f"  {emoji} **{username_part} from {subreddit_part}** - {participant['role']}")
+                        st.markdown(
+                            f"  {emoji} **{username_part} from {subreddit_part}** - {participant['role']}"
+                        )
                     else:
-                        emoji = "🔵" if "Democrat" in participant["name"] else "🔴" if "MAGA" in participant["name"] else "⚫"
-                        st.markdown(f"  {emoji} **{participant['name']}** - {participant['role']}")
+                        emoji = (
+                            "🔵"
+                            if "Democrat" in participant["name"]
+                            else "🔴" if "MAGA" in participant["name"] else "⚫"
+                        )
+                        st.markdown(
+                            f"  {emoji} **{participant['name']}** - {participant['role']}"
+                        )
             st.markdown("---")
-            
+
             # Progress bar
             progress_bar = st.progress(0)
             status_text = st.empty()
-            
+
             # Conduct debate
             conversation = []
-            current_message = f"Let's discuss {topic}. What are your thoughts on this issue?"
-            
+            current_message = (
+                f"Let's discuss {topic}. What are your thoughts on this issue?"
+            )
+
             # Initialize stats for competitive mode
             if competitive_mode:
                 for participant in all_participants:
                     if "stats" not in participant:
                         participant["stats"] = {"anger": 50, "patience": 50}
-            
+
             for round_num in range(rounds):
                 # Check if debate was stopped
-                if st.session_state.get('debate_stopped', False):
+                if st.session_state.get("debate_stopped", False):
                     status_text.text("⏹️ Debate stopped by user")
                     break
-                
+
                 # Store round messages for judging
                 round_messages = []
-                
+
                 # Each participant responds in the round
                 for participant_index, participant in enumerate(all_participants):
                     # Check if debate was stopped between participants
-                    if st.session_state.get('debate_stopped', False):
+                    if st.session_state.get("debate_stopped", False):
                         status_text.text("⏹️ Debate stopped by user")
                         break
-                    
+
                     # Update progress
                     total_responses = rounds * len(all_participants)
-                    current_response = round_num * len(all_participants) + participant_index
+                    current_response = (
+                        round_num * len(all_participants) + participant_index
+                    )
                     progress = current_response / total_responses
                     progress_bar.progress(progress)
-                    status_text.text(f"Round {round_num + 1}/{rounds} - {participant['name']} responding...")
-                    
+                    status_text.text(
+                        f"Round {round_num + 1}/{rounds} - {participant['name']} responding..."
+                    )
+
                     # Update style based on current stats for competitive mode
                     if competitive_mode:
-                        participant["style"] = debate_system.get_dynamic_style(participant)
-                    
+                        participant["style"] = debate_system.get_dynamic_style(
+                            participant
+                        )
+
                     # Generate response for this participant
-                    # ALWAYS clean the current_message before passing to AI
-                    import re
-                    # Remove any HTML tags that might have been stored
-                    current_message = re.sub(r'<[^>]+>', '', current_message)
-                    # Clean up any remaining HTML entities
-                    current_message = current_message.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
-                    current_message = current_message.replace('&quot;', '"').replace('&#x27;', "'").replace('&#39;', "'")
-                    # Remove any extra whitespace that might have been left
-                    current_message = ' '.join(current_message.split())
-                    # Final safety check: remove any remaining HTML-like characters
-                    current_message = current_message.replace('<', '').replace('>', '').replace('&', 'and')
-                    current_message = ' '.join(current_message.split())
-                    
-                    response = debate_system.generate_response(
-                        participant, 
-                        current_message, 
-                        conversation
+                    debate_response = debate_system.generate_response(
+                        participant, current_message, conversation
                     )
                     
-                    # Final safety check: ensure response is completely clean
-                    import re
-                    clean_response = response
-                    
-                    # ALWAYS clean the response, regardless of whether HTML is detected
-                    # Remove any HTML tags
-                    clean_response = re.sub(r'<[^>]+>', '', clean_response)
-                    # Clean up any remaining HTML entities
-                    clean_response = clean_response.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
-                    clean_response = clean_response.replace('&quot;', '"').replace('&#x27;', "'").replace('&#39;', "'")
-                    # Remove any extra whitespace that might have been left
-                    clean_response = ' '.join(clean_response.split())
-                    
-                    # Final safety check: remove any remaining HTML-like characters
-                    clean_response = clean_response.replace('<', '').replace('>', '').replace('&', 'and')
-                    clean_response = ' '.join(clean_response.split())
-                    
-                    # Debug: Check if clean_response still contains HTML after cleaning
-                    if '<' in clean_response and '>' in clean_response:
-                        st.error(f"CRITICAL: clean_response still contains HTML after cleaning: {clean_response}")
-                        # Force clean it one more time
-                        clean_response = re.sub(r'<[^>]+>', '', clean_response)
-                        clean_response = ' '.join(clean_response.split())
-                    
-                    conversation.append({
-                        "round": round_num + 1,
-                        "speaker": participant["name"],
-                        "message": clean_response,
-                        "timestamp": datetime.now().isoformat()
-                    })
-                    
+                    conversation.append(
+                        {
+                            "round": round_num + 1,
+                            "speaker": participant["name"],
+                            "message": debate_response,
+                            "timestamp": datetime.now().isoformat(),
+                        }
+                    )
+
                     # Add to round messages for judging
-                    round_messages.append({
-                        "speaker": participant["name"],
-                        "message": clean_response
-                    })
-                    
+                    round_messages.append(
+                        {"speaker": participant["name"], "message": debate_response}
+                    )
+
                     # Determine message styling based on participant type and assigned position
                     if "Democrat" in participant["name"]:
                         message_class = "democrat-message"
@@ -1382,10 +1816,16 @@ def main():
                         # Random Redditor character
                         message_class = "redditor-message"
                         emoji = "🤖"
-                    elif "from" in participant["name"] and "u/" not in participant["name"]:
+                    elif (
+                        "from" in participant["name"]
+                        and "u/" not in participant["name"]
+                    ):
                         message_class = "random-american-message"
                         # Use gender-appropriate face emoji
-                        if "gender" in participant and participant["gender"] == "female":
+                        if (
+                            "gender" in participant
+                            and participant["gender"] == "female"
+                        ):
                             emoji = "👩"
                         else:
                             emoji = "👨"
@@ -1416,19 +1856,23 @@ def main():
                     else:
                         message_class = "democrat-message"
                         emoji = "⚫"
-                    
+
                     # Use assigned position
                     position = participant.get("position", "left")
-                    
+
                     # Display response with alternating positioning
                     # Create display name with age for Random Americans
-                    display_name = participant['name']
-                    if "from" in participant["name"] and "u/" not in participant["name"] and "age" in participant:
+                    display_name = participant["name"]
+                    if (
+                        "from" in participant["name"]
+                        and "u/" not in participant["name"]
+                        and "age" in participant
+                    ):
                         name_part = participant["name"].split(" from ")[0]
                         city_part = participant["name"].split(" from ")[1]
                         age = participant["age"]
                         display_name = f"{name_part} from {city_part} ({age}yo)"
-                    
+
                     # Generate stat bubbles for competitive mode
                     stat_bubbles_html = ""
                     if competitive_mode and "stats" in participant:
@@ -1442,12 +1886,11 @@ def main():
                             <div class="stat-bubble patience-bubble">{patience}</div>
                         </div>
                         """
-                    
-                    # Properly escape the clean_response for HTML template insertion
-                    import html
-                    escaped_clean_response = html.escape(clean_response)
-                    
+
                     # Build HTML template with proper CSS classes but clean content
+                    # Escape any remaining HTML characters in the response
+                    escaped_response = debate_response.replace("<", "&lt;").replace(">", "&gt;")
+                    
                     if position == "left":
                         html_template = f"""
                         <div style="display: flex; justify-content: flex-start;">
@@ -1456,7 +1899,7 @@ def main():
                                 <div class="{message_class}">
                                     {stat_bubbles_html}
                                     <div class="speaker-name">{emoji} {display_name}</div>
-                                    {escaped_clean_response}
+                                    {escaped_response}
                                 </div>
                             </div>
                         </div>
@@ -1469,57 +1912,66 @@ def main():
                                 <div class="{message_class}">
                                     {stat_bubbles_html}
                                     <div class="speaker-name">{emoji} {display_name}</div>
-                                    {escaped_clean_response}
+                                    {escaped_response}
                                 </div>
                             </div>
                         </div>
                         """
-                    
-                    st.markdown(html_template, unsafe_allow_html=True)
-                    
-                    current_message = clean_response
+
+                    st.html(html_template)
+
+                    current_message = debate_response
                     time.sleep(delay)
-                
+
                 # Judge the round in competitive mode
                 if competitive_mode and round_messages:
-                    status_text.text(f"Round {round_num + 1}/{rounds} - AI Judge evaluating...")
-                    
+                    status_text.text(
+                        f"Round {round_num + 1}/{rounds} - AI Judge evaluating..."
+                    )
+
                     # Get judge feedback
-                    judge_adjustments = debate_system.judge_round(round_messages, all_participants)
-                    
+                    judge_adjustments = debate_system.judge_round(
+                        round_messages, all_participants
+                    )
+
                     # Apply adjustments to each participant
                     for participant in all_participants:
                         if participant["name"] in judge_adjustments:
-                            debate_system.adjust_character_stats(participant, judge_adjustments[participant["name"]])
-                    
+                            debate_system.adjust_character_stats(
+                                participant, judge_adjustments[participant["name"]]
+                            )
+
                     # Show judge feedback
-                    st.markdown(f"""
+                    st.html(
+                        f"""
                     <div style="background-color: rgba(255, 215, 0, 0.1); padding: 0.5rem; border-radius: 8px; margin: 0.5rem 0; border-left: 4px solid #FFD700;">
                         <strong>🏆 Round {round_num + 1} Judge Feedback:</strong><br>
                         {len(round_messages)} responses evaluated. Stats updated based on performance.
                     </div>
-                    """, unsafe_allow_html=True)
-                
+                    """
+                    )
+
                 # Check if we should break after all participants in this round
-                if st.session_state.get('debate_stopped', False):
+                if st.session_state.get("debate_stopped", False):
                     break
-            
+
             # Complete progress
-            if not st.session_state.get('debate_stopped', False):
-                progress_bar.progress(1.0)
+            progress = 1.0  # Default to complete when debate ends
+            if not st.session_state.get("debate_stopped", False):
+                progress_bar.progress(progress)
                 status_text.text("✅ Debate complete!")
-                
+
                 # Show final stats summary for competitive mode
                 if competitive_mode:
                     st.markdown("## 🏆 Final Competitive Mode Results")
                     st.markdown("### 📊 Character Performance Summary:")
-                    
+
                     for participant in all_participants:
                         if "stats" in participant:
                             anger = participant["stats"]["anger"]
                             patience = participant["stats"]["patience"]
                             uniqueness = participant["stats"]["uniqueness"]
-                            
+
                             # Determine performance rating
                             total_score = anger + patience + uniqueness
                             if total_score >= 240:
@@ -1534,21 +1986,23 @@ def main():
                             else:
                                 performance = "😞 POOR"
                                 color = "#FF0000"
-                            
-                            st.markdown(f"""
+
+                            st.html(
+                                f"""
                             <div style="background-color: rgba(255, 255, 255, 0.05); padding: 0.5rem; border-radius: 8px; margin: 0.3rem 0;">
                                 <strong>{participant['name']}</strong><br>
                                 Anger: {anger} | Patience: {patience} | Uniqueness: {uniqueness}<br>
                                 <span style="color: {color}; font-weight: bold;">{performance}</span>
                             </div>
-                            """, unsafe_allow_html=True)
+                            """
+                            )
             else:
                 progress_bar.progress(progress)
                 status_text.text("⏹️ Debate stopped by user")
-            
+
             # Reset debate state
             st.session_state.debate_running = False
-            
+
             # Save session
             session_data = {
                 "session_start": datetime.now().isoformat(),
@@ -1556,240 +2010,33 @@ def main():
                 "rounds": rounds,
                 "conversation": conversation,
                 "competitive_mode": competitive_mode,
-                "participants": [{"name": p["name"], "stats": p.get("stats", {})} for p in all_participants] if competitive_mode else []
+                "participants": (
+                    [
+                        {"name": p["name"], "stats": p.get("stats", {})}
+                        for p in all_participants
+                    ]
+                    if competitive_mode
+                    else []
+                ),
             }
-            
+
             # Download button
             st.download_button(
                 label="💾 Download Debate Session",
                 data=json.dumps(session_data, indent=2),
                 file_name=f"political_debate_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
-                mime="application/json"
+                mime="application/json",
             )
-    
-    # Replay session
-    if 'replay_session' in st.session_state:
-        session_data = st.session_state.replay_session
-        st.markdown("## 📖 Replaying Previous Session")
-        
-        if 'topic' in session_data:
-            st.markdown(f"**Topic:** {session_data['topic']}")
-        
-        if 'conversation' in session_data:
-            # Get unique speakers and assign random positions for replay
-            import random
-            unique_speakers = list(set([entry.get('speaker', 'Unknown') for entry in session_data['conversation']]))
-            random.shuffle(unique_speakers)
-            left_speakers = unique_speakers[:len(unique_speakers)//2]
-            right_speakers = unique_speakers[len(unique_speakers)//2:]
-            
-            # If odd number, put the extra one on the right
-            if len(unique_speakers) % 2 == 1 and len(left_speakers) < len(right_speakers):
-                left_speakers.append(right_speakers.pop())
-            
-            for entry in session_data['conversation']:
-                speaker = entry.get('speaker', 'Unknown')
-                message = entry.get('message', '')
-                round_num = entry.get('round', 0)
-                
-                # Determine message styling for replay
-                if 'Market Liberal Democrat' in speaker:
-                    message_class = "democrat-message"
-                    emoji = "🔵"
-                elif 'MAGA' in speaker:
-                    message_class = "republican-message"
-                    emoji = "🔴"
-                elif 'u/' in speaker:
-                    # Random Redditor character
-                    message_class = "redditor-message"
-                    emoji = "🤖"
-                elif 'from' in speaker:
-                    message_class = "random-american-message"
-                    # Try to determine gender from the name
-                    name_part = speaker.split(" from ")[0]
-                    if name_part in ["Mary", "Patricia", "Jennifer", "Linda", "Elizabeth", "Barbara", "Susan", "Jessica", "Sarah", "Karen", "Nancy", "Lisa", "Betty", "Helen", "Sandra", "Donna", "Carol", "Ruth", "Sharon", "Michelle", "Laura", "Emily", "Kimberly", "Deborah", "Dorothy"]:
-                        emoji = "👩"
-                    else:
-                        emoji = "👨"
-                elif 'Marxist' in speaker:
-                    message_class = "marxist-message"
-                    emoji = "☭"
-                elif 'Anarcho' in speaker:
-                    message_class = "anarcho-message"
-                    emoji = "$"
-                elif 'Catholic' in speaker:
-                    message_class = "catholic-message"
-                    emoji = "⛪"
-                elif 'Monarchist' in speaker:
-                    message_class = "monarchist-message"
-                    emoji = "👑"
-                elif 'Islamic' in speaker:
-                    message_class = "islamic-message"
-                    emoji = "☪️"
-                elif 'Evangelist' in speaker:
-                    message_class = "evangelist-message"
-                    emoji = "✝️"
-                elif 'Master Baiter' in speaker:
-                    message_class = "master-baiter-message"
-                    emoji = "💪"
-                elif 'Chinese Communist Party' in speaker:
-                    message_class = "chinese-communist-message"
-                    emoji = "🇨🇳"
-                else:
-                    message_class = "democrat-message"
-                    emoji = "⚫"
-                
-                # Use assigned position for replay
-                position = "left" if speaker in left_speakers else "right"
-                
-                # Properly escape the message for HTML template insertion
-                import html
-                escaped_message = html.escape(message)
-                
-                # Build HTML template for replay with proper CSS classes
-                if position == "left":
-                    html_template = f"""
-                    <div style="display: flex; justify-content: flex-start;">
-                        <div class="debate-container">
-                            <div class="round-header">Round {round_num}</div>
-                            <div class="{message_class}">
-                                <div class="speaker-name">{emoji} {speaker}</div>
-                                {escaped_message}
-                            </div>
-                        </div>
-                    </div>
-                    """
-                else:
-                    html_template = f"""
-                    <div style="display: flex; justify-content: flex-end;">
-                        <div class="debate-container">
-                            <div class="{message_class}">
-                                <div class="speaker-name">{emoji} {speaker}</div>
-                                {escaped_message}
-                            </div>
-                        </div>
-                    </div>
-                    """
-                
-                st.markdown(html_template, unsafe_allow_html=True)
-    
-    # Info section
-    if not start_debate and 'replay_session' not in st.session_state:
-        st.markdown("## 📊 About the AI Commentators")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("### 🔵 Market Liberal Democrat *(Default)*")
-            st.markdown("""
-            - Advocates for regulated capitalism and free trade
-            - Supports government intervention to correct market failures
-            - Emphasizes evidence-based policy and globalization
-            - Believes in progressive taxation and social safety nets
-            """)
-            
-            st.markdown("### 🔴 MAGA Nationalist *(Default)*")
-            st.markdown("""
-            - Advocates for America First policies and economic nationalism
-            - Supports protectionist trade policies and strong borders
-            - Emphasizes American exceptionalism and traditional values
-            - Believes in deregulation and putting American interests first
-            """)
-            
-            st.markdown("### ☭ Marxist-Leninist (Vladimir Lenin)")
-            st.markdown("""
-            - Revolutionary socialist and communist theorist
-            - Advocates for dictatorship of the proletariat
-            - Believes in class struggle and overthrow of capitalism
-            - Emphasizes state ownership and central planning
-            """)
-            
-            st.markdown("### 👨👩 Random American (Random Name from Random City)")
-            st.markdown("""
-            - Stereotypical personality based on random US city
-            - Uses local expressions and regional pride
-            - Emphasizes hometown values and local issues
-            - Gender-appropriate face emoji (👨 for male, 👩 for female)
-            - Age matches generation: Boomer (59-89), Gen X (43-58), Millennial (28-42), Gen Z (12-27), Gen Alpha (5-11)
-            - Generation-appropriate texting style and slang
-            - Different personality each time (100+ cities available)
-            """)
-            
-            st.markdown("### 🤖 Random Redditor (Random Username from Random Subreddit)")
-            st.markdown("""
-            - Hyperbolized personality based on random subreddit stereotype
-            - Uses Reddit terminology and references subreddit culture
-            - Emphasizes subreddit-specific obsessions and phrases
-            - Robot emoji (🤖) and maroon message styling
-            - Different personality each time (50+ subreddits available)
-            """)
-            
-            st.markdown("### $ Anarcho-Capitalist (Javier Milei)")
-            st.markdown("""
-            - Radical free-market advocate and libertarian
-            - Believes in abolition of the state and laissez-faire
-            - Advocates for complete privatization and no taxes
-            - Emphasizes individual liberty and property rights
-            """)
-        
-        with col2:
-            st.markdown("### ⛪ Catholic Theocrat (Conservative Pope)")
-            st.markdown("""
-            - Conservative Catholic theologian and moral authority
-            - Advocates for laws based on natural law and Church teaching
-            - Emphasizes traditional family structures and religious freedom
-            - Believes in Church's role in guiding political decisions
-            """)
-            
-            st.markdown("### 👑 Absolute Monarchist (King George III)")
-            st.markdown("""
-            - Traditional monarchist and aristocratic defender
-            - Believes in divine right of kings and hereditary rule
-            - Advocates for strong centralized authority and social hierarchy
-            - Emphasizes tradition, stability, and natural order
-            """)
-            
-            st.markdown("### ☪️ Islamic Extremist (Osama bin Laden)")
-            st.markdown("""
-            - Radical Islamic fundamentalist and jihadist
-            - Advocates for global Islamic caliphate and Sharia law
-            - Believes in jihad against non-Muslim powers
-            - Emphasizes supremacy of Islamic law and religious duty
-            """)
-            
-            st.markdown("### ✝️ Evangelist Preacher (Prosperity Gospel)")
-            st.markdown("""
-            - Prosperity gospel preacher and religious entrepreneur
-            - Believes in power of faith and positive thinking
-            - Advocates for individual responsibility and prayer
-            - Emphasizes divine favor and personal transformation
-            """)
-            
-            st.markdown("### 💪 Master Baiter (Intellectual Provocateur)")
-            st.markdown("""
-            - Uses extremely formal and academic language to bait opponents
-            - Deliberately provocative with sophisticated intellectual trolling
-            - Maximum 10 words per response for maximum impact
-            - Dark pink message styling with muscle emoji
-            """)
-            
-            st.markdown("### 🇨🇳 Chinese Communist Party (Authoritarian Socialist)")
-            st.markdown("""
-            - High-ranking CCP official advocating socialist market economy
-            - Emphasizes CCP leadership and Chinese development model
-            - Critical of Western democracy and liberal values
-            - Dark crimson message styling with PRC flag emoji
-            """)
-        
-        st.markdown("---")
-        st.markdown("### 🎯 How to Use")
-        st.markdown("""
-        1. **Configure your OpenAI API key** in the `.env` file
-        2. **Select a debate topic** from the sidebar or enter a custom one
-        3. **Adjust settings** like number of rounds and response delay
-        4. **Click 'Start Debate'** to begin the AI-powered discussion
-        5. **Download the session** to save the debate for later
-        """)
+            # 5. Log debate end
+            logging.info(
+                f"Debate ended. Topic: '{topic}', Rounds: {rounds}, Participants: {[p['name'] for p in all_participants]}"
+            )
+
+    # Log app started only once per session
+    if "app_fully_started" not in st.session_state:
+        logging.info("AI Political Debate Simulator app started.")
+        st.session_state.app_fully_started = True
+
 
 if __name__ == "__main__":
-    main() 
+    main()
