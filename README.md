@@ -140,87 +140,86 @@ The application has been refactored from a monolithic design into a clean, modul
 ### Directory Layout
 
 ```
-src/
-└── debate_simulator/                # Main application package
-    ├── domain/                      # Domain layer - core business logic
-    │   ├── characters/              # Character domain models and factories
-    │   │   ├── base.py             # Base character models and abstractions
-    │   │   ├── predefined.py       # Predefined character factory with detailed personalities
-    │   │   └── random_generators.py # Random character generation (American, Redditor)
-    │   ├── debate/                  # Debate domain models and logic
-    │   │   ├── models.py           # Core debate models (Message, Round, Conversation, etc.)
-    │   │   ├── judge.py            # Debate judging system (AI, mock, rule-based)
-    │   │   └── orchestrator.py     # Debate flow orchestration and AI coordination
-    │   └── topics.py               # Debate topics management and validation
-    ├── infrastructure/              # Infrastructure layer - external concerns
-    │   ├── ai_client.py            # AI client abstraction and OpenAI implementation
-    │   ├── config.py               # Application configuration and environment management
-    │   └── logging_config.py       # Centralized logging configuration
-    ├── application/                 # Application layer - use cases and coordination
-    │   ├── character_service.py    # Character creation, caching, and management
-    │   └── debate_service.py       # High-level debate session coordination
-    └── presentation/                # Presentation layer - UI and user interaction
-        ├── streamlit_app.py        # Main Streamlit application (thin UI layer)
-        └── ui/                     # UI components and styling
-            ├── components.py       # Reusable UI components (messages, controls, etc.)
-            └── styles.py           # CSS styles for Streamlit UI
+src/political_debate/               # Main application package
+├── domain/                         # Domain layer - core business logic
+│   ├── models.py                  # Domain entities (Participant, Message, DebateSession, etc.)
+│   ├── character_factory.py      # Factory for creating debate participants with detailed personalities
+│   └── data.py                    # Static data (names, cities, debate topics, character definitions)
+├── application/                   # Application layer - use cases and coordination
+│   └── debate_service.py          # Main debate orchestration service and workflow management
+├── infrastructure/                # Infrastructure layer - external concerns
+│   └── openai_client.py           # OpenAI API communication service with error handling
+└── presentation/                  # Presentation layer - UI and user interaction
+    ├── streamlit_app.py           # Main Streamlit application (thin UI layer)
+    └── ui_components.py           # Reusable UI components and CSS styling
 
-tests/                              # Comprehensive test suite
-├── unit/                           # Unit tests by layer
-│   ├── test_characters/            # Character model and factory tests
-│   ├── test_debate/                # Debate logic and orchestration tests
-│   ├── test_application/           # Application service tests
-│   └── test_infrastructure/        # Infrastructure component tests
-├── integration/                    # Integration tests
-│   └── test_debate_flow.py        # End-to-end debate flow testing
-└── fixtures/                       # Test data and utilities
+tests/                             # Comprehensive test suite
+├── unit/                          # Unit tests for individual components
+│   ├── test_models.py            # Tests for domain models and business logic
+│   └── test_character_factory.py # Tests for character creation and factory patterns
+└── integration/                   # Integration tests for complete workflows
+    └── test_debate_workflow.py   # End-to-end debate workflow and API integration tests
+
+Additional Files:
+├── app.py                         # Main application entry point
+├── run_tests.py                   # Test runner with coverage reporting
+├── requirements-dev.txt           # Development and testing dependencies
+└── REFACTORING_SUMMARY.md         # Detailed refactoring documentation
 ```
 
 ### Component Responsibilities
 
-#### Domain Layer (`src/debate_simulator/domain/`)
+#### Domain Layer (`src/political_debate/domain/`)
 Contains the core business logic and domain models, independent of external frameworks:
 
-- **Characters Module**: Defines character abstractions, predefined personalities, and random generation
-- **Debate Module**: Core debate models, judging logic, and orchestration of debate flow
-- **Topics Module**: Manages debate topics, categories, and validation rules
+- **Models**: Defines core entities (Participant, Message, DebateSession) with business rules and validation
+- **Character Factory**: Creates diverse political personalities with unique traits, speaking styles, and ideologies
+- **Data Management**: Centralizes static data including character definitions, names, cities, and debate topics
 
-#### Infrastructure Layer (`src/debate_simulator/infrastructure/`)
+#### Infrastructure Layer (`src/political_debate/infrastructure/`)
 Handles external dependencies and cross-cutting concerns:
 
-- **AI Client**: Abstracts OpenAI API interactions with mock implementations for testing
-- **Configuration**: Manages environment variables, API keys, and application settings
-- **Logging**: Centralized logging with rotating files, console output, and context management
+- **OpenAI Client**: Abstracts OpenAI API interactions with proper error handling and environment setup
+- **API Management**: Manages API keys, request formatting, and response processing
+- **Error Recovery**: Graceful handling of API failures and network issues
 
-#### Application Layer (`src/debate_simulator/application/`)
+#### Application Layer (`src/political_debate/application/`)
 Coordinates between domain and infrastructure layers to implement use cases:
 
-- **Character Service**: Manages character creation, validation, caching, and position assignment
-- **Debate Service**: Orchestrates debate sessions, UI callbacks, and statistics collection
+- **Debate Service**: Orchestrates the complete debate workflow from character creation to result display
+- **Session Management**: Handles debate rounds, stat tracking, competitive judging, and UI coordination
+- **Business Logic**: Implements debate rules, participant behavior, and outcome determination
 
-#### Presentation Layer (`src/debate_simulator/presentation/`)
+#### Presentation Layer (`src/political_debate/presentation/`)
 Handles user interface and interaction:
 
-- **Streamlit App**: Main application entry point, acts as a thin UI layer using application services
-- **UI Components**: Modular, reusable components for messages, controls, and layout
-- **Styles**: CSS styling for consistent, responsive design
+- **Streamlit App**: Main application entry point with clean session state management
+- **UI Components**: Reusable components for message display, controls, styling, and user interaction
+- **Visual Design**: Chat-style message rendering with character-specific styling and responsive layout
 
 ### Key Architectural Benefits
 
-1. **Separation of Concerns**: Each layer has a single, well-defined responsibility
-2. **Testability**: Comprehensive unit and integration tests with >80% coverage
-3. **Maintainability**: Modular design makes changes and extensions easier
-4. **Scalability**: Clean architecture supports future feature additions
-5. **Flexibility**: Abstract interfaces allow easy swapping of implementations (e.g., AI providers)
+1. **Separation of Concerns**: Each layer has a single, well-defined responsibility with minimal coupling
+2. **Testability**: Comprehensive unit and integration tests with >80% coverage and extensive mocking
+3. **Maintainability**: Modular design makes changes and extensions straightforward
+4. **Scalability**: Clean architecture supports new character types, debate formats, and UI enhancements
+5. **Reliability**: Proper error handling, logging, and graceful degradation throughout all layers
+6. **Flexibility**: Abstract interfaces allow easy swapping of AI providers or UI frameworks
 
 ### Testing Strategy
 
-The test suite follows the same architectural layers:
+The test suite follows the same architectural layers with comprehensive coverage:
 
-- **Unit Tests**: Test individual components in isolation with extensive mocking
-- **Integration Tests**: Test interactions between components and external services
-- **Fixtures**: Provide consistent test data and utilities
-- **Coverage**: Aims for >80% code coverage with focus on critical business logic
+- **Unit Tests (28 tests)**: Test individual components in isolation with extensive mocking
+  - Domain model validation, character factory logic, and stats calculation
+  - Boundary testing, error conditions, and business rule enforcement
+  
+- **Integration Tests (6 tests)**: Test complete workflows and component interactions
+  - End-to-end debate creation and execution with mocked OpenAI API
+  - Error handling scenarios, data persistence, and session management
+  
+- **Test Infrastructure**: Custom test runner with HTML coverage reports and CI/CD integration
+- **Mocking Strategy**: Comprehensive OpenAI API mocking to avoid costs and ensure consistency
 
 ## License
 
