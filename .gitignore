@@ -1,2 +1,7 @@
 .env
 StupidAahh/
+.vscode/
+.venv/
+venv/
+*.log
+__pycache__
